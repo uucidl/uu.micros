@@ -8,7 +8,8 @@ OS=${OS_NAME// /_}
 ASTYLE=astyle
 BUILD_DIR=${HERE}/builds/${HOSTNAME}
 
-src_files=src/main.cpp
+src_files=src/*.cpp
+header_files=include/*.h
 
 function require_dir() {
     mkdir -p ${BUILD_DIR}
@@ -20,7 +21,9 @@ function rebuild_dir() {
 }
 
 function code_format() {
-    astyle_output=$(${ASTYLE} -Q --options=${HERE}/.astylerc ${src_files})
+    astyle_output=$(
+	${ASTYLE} -Q --options=${HERE}/.astylerc ${src_files} ${header_files}
+    )
     if [[ -n "${astyle_output}" ]]; then
 	printf "astyle returned '%s', please commit these modifications\n" "${astyle_output}"
 	exit 1

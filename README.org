@@ -3,7 +3,7 @@
 This was prompted by alex' tweet about doing a round robin demo.
 
 https://twitter.com/mmalex/status/403818676224544768
-
+#+begin_example
 <mmalex> Been wondering about doing an async 'chain' collab demo for years: rules: c++/GL only, 1 week work then pass it on... Repeat until deadline
 <javiercampos> @mmalex Isn't that the exact opposite to async? :-)
 <gpakosz> @mmalex on top of existing ground work demo system or from scratch?
@@ -24,6 +24,7 @@ https://twitter.com/mmalex/status/403818676224544768
 <DeanoC>@mmalex could be fun. Different section per author or keep modifying the same bit, see where it evolves?
 <DeanoC>@mmalex One section, where each week its evolved by the next coder or each do a seperate section link to the previous? Either way sounds fun
 <keyboardjockey> @mmalex interesting. Should have each person branch off and have the next dev perform the merge, to become familiar.
+#+end_example
 
 * Specs
 
@@ -32,5 +33,73 @@ https://twitter.com/mmalex/status/403818676224544768
 - source only libraries accepted
 - C++ only supported
 
-I personally would like to see it tested always for build times and
-performance.
+Personal comment:
+- I don't like people arguing about code style, so having an automatic
+  formatter could help. (see artistic style)
+
+* Requirements
+
+- git (+ on windows the msys environment that comes with it)
+find it at http://git-scm.com/
+- a C++11 compiler (gcc, clang, visual studio)
+
+All the rest shipped within the tree
+
+* API
+:PROPERTIES:
+:mkdirp: yes
+:END:
+
+Using our experience to define the most minimal and useful hooks to
+code a demo we come with the following:
+
+#+begin_src cpp :mkdir yes :tangle include/api.h
+#include <cstdint>
+
+//! current time in microseconds
+uint64_t now_micros();
+
+//! called for each new video frame
+//! \param time_micros scheduling time for the frame
+extern void render_next_gl(uint64_t time_micros);
+
+//! called for each new audio frame
+//! \param time_micros scheduling time for the first sample of the frame
+//! \param sample_count count of stereo audio sample to fill
+//! \param left buffer of audio samples for the left channel
+//! \param right buffer of audio samples for the right channel
+extern void render_next_2chn_48khz_audio(uint64_t time_micros, int const sample_count, double* left[frame_count], double right[frame_count]);
+
+//! can be used to pre-compute / load the demo or for general background computation
+extern void background_task();
+#+end_src
+
+* Ideas
+
+- Use Regal as a compatibility layer for all the various opengl
+  implementations
+
+- in lib you will find all stb libs for image loading, truetype/vorbis
+  support at least. All the rest can come from demo or c++11 or any
+  other source available lib that can be put in the tree.
+
+- we enforce a single C++ standard (C++11)
+
+- we enforce a single code style (the build script format files
+  automatically)
+
+Linux code style with 8 space indents. Can evolve / be edited in the .astylerc
+file if you prefer something else for your own coding segment.
+
+Don't put editor specific stuff in source files
+
+- a base runtime will be provided for mac/linux/pc (based on the most
+  basic lib available)
+
+- build script always rebuild the entire demo (it should not grow big
+  enough for it to matter)
+
+- the build script always create builds in a separate dirs according to hostname
+
+- the build script can be edited to define compilation flags per
+  machine or platform (for custom/weird environments)
