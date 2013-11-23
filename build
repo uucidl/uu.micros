@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+
+HERE=$(dirname $0)
+HOSTNAME=$(hostname)
+OS_NAME=$(uname -s)
+OS_RELEASE=$(uname -r)
+OS=${OS_NAME// /_}
+ASTYLE=astyle
+BUILD_DIR=${HERE}/builds/${HOSTNAME}
+
+src_files=src/main.cpp
+
+function require_dir() {
+    mkdir -p ${BUILD_DIR}
+}
+
+function rebuild_dir() {
+    [[ -d "${BUILD_DIR}" ]] && rm -rf "${BUILD_DIR}"
+    require_dir
+}
+
+function code_format() {
+    astyle_output=$(${ASTYLE} -Q --options=${HERE}/.astylerc ${src_files})
+    if [[ -n "${astyle_output}" ]]; then
+	printf "astyle returned '%s', please commit these modifications\n" "${astyle_output}"
+	exit 1
+    fi
+}
+
+function compile_default() {
+    printf "define a compilation function for your OS ${OS} or host ${HOSTNAME}!"
+    exit 1
+}
+
+function compile_gxxlike() {
+    CFLAGS="$CFLAGS -isystem ${HERE}/include"
+    CFLAGS="$CFLAGS -Wall -Wextra -Werror"
+    CFLAGS="$CFLAGS -Wno-padded -Wno-unused-parameter -Wno-conversion"
+    ${CXX} -std=c++11 ${CFLAGS} ${src_files} -o ${BUILD_DIR}/main
+}
+
+function compile_clang() {
+    CFLAGS="$CFLAGS -stdlib=libc++"
+    CXX=clang++
+    compile_gxxlike
+}
+
+compile_Darwin() {
+    compile_clang
+}
+
+function compile() {
+    if [[ "function" = $(type -t "compile_${HOSTNAME}") ]]; then
+	compile_${HOSTNAME}
+    elif [[ "function" = $(type -t "compile_${OS}") ]]; then
+	compile_${OS}
+    else
+	compile_default
+    fi
+}
+
+printf "INFO building on %s (%s)\n" ${HOSTNAME} ${OS}
+code_format && rebuild_dir && compile
+
+printf "INFO success\n"
