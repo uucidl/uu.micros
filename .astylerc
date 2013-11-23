@@ -1,2 +1,3 @@
 style=linux
 indent=spaces=8
+max-code-length=78
