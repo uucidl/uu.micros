@@ -1,0 +1,36 @@
+* Discussion
+
+This was prompted by alex' tweet about doing a round robin demo.
+
+https://twitter.com/mmalex/status/403818676224544768
+
+<mmalex> Been wondering about doing an async 'chain' collab demo for years: rules: c++/GL only, 1 week work then pass it on... Repeat until deadline
+<javiercampos> @mmalex Isn't that the exact opposite to async? :-)
+<gpakosz> @mmalex on top of existing ground work demo system or from scratch?
+<mmalex> @javiercampos heh :) I guess you're right! What's the right word...
+<LiaSae> @mmalex The technical term for this in the cross-stitch word is round-robin :) Could apply as well!
+<LiaSae> @mmalex Make that "world", d'oh.
+<mmalex> @LiaSae we could upload the result to ravelry! :)
+<‏LiaSae> @mmalex I'd love to see more fabric-like style in games (Epic Yarn, Little Big Planet, and.... there ain't much else) / demos, so why not :)
+<kamidphish> @mmalex Is that like the old C64 demos?
+<nvining> @mmalex I'm in.
+<_psonice> @LiaSae there was zen bondage / zen bound, if that counts. A game full of soft objects/scenery instead of hard would be cool tho! @mmalex
+<Flawe> @mmalex very cool idea!
+<uucidl> @mmalex I always wanted to do this yet it's always a problem with coders being anal about their frameworks and build systems etc..
+<mmalex> @uucidl lowest common denominator ftw! build batch file/shellscript, minimum external deps (GL/playmp3()/gnurocket/stb_*), GO! ?
+<uucidl> @mmalex and no data file, everything generated or in-source ;)
+<mmalex>@uucidl yeah! and, drop playmp3() and replace with fill_48khz_stereo_buf_plz() callback -> synth.
+<ElMarcel> @Flawe @mmalex Awesome!
+<DeanoC>@mmalex could be fun. Different section per author or keep modifying the same bit, see where it evolves?
+<DeanoC>@mmalex One section, where each week its evolved by the next coder or each do a seperate section link to the previous? Either way sounds fun
+<keyboardjockey> @mmalex interesting. Should have each person branch off and have the next dev perform the merge, to become familiar.
+
+* Specs
+
+- shell script build (clean + rebuild + test + run)
+- host system with GL and audio
+- source only libraries accepted
+- C++ only supported
+
+I personally would like to see it tested always for build times and
+performance.
