@@ -73,4 +73,11 @@ function compile() {
 printf "INFO building on %s (%s)\n" ${HOSTNAME} ${OS}
 code_format && rebuild_dir && compile && check_clean
 
+if [[ $? -ne 0 ]]; then
+    printf "ERROR error\n"
+    exit 1
+fi
+
 printf "INFO success\n"
+printf "INFO results:\n"
+find ${BUILD_DIR} -type f
