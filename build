@@ -61,6 +61,10 @@ function compile_gxxlike() {
     CFLAGS="$CFLAGS -isystem ${HERE}/include"
     CFLAGS="$CFLAGS -Wall -Wextra -Werror"
     CFLAGS="$CFLAGS -Wno-padded -Wno-unused-parameter -Wno-conversion"
+    if [[ -n "${VERBOSE}" ]]; then
+	CFLAGS="$CFLAGS -v"
+    fi
+
     "${CXX}" -std=c++11 ${CFLAGS} ${src_files[*]} -o ${BUILD_DIR}/main
 }
 
