@@ -51,7 +51,8 @@ static void reshape_callback (int width, int height)
 
 static void display_callback()
 {
-        render_next_gl(0);
+        // TODO: use time scheduled for the frame rather than 'now'
+        render_next_gl(now_micros());
         glutSwapBuffers();
 }
 
