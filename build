@@ -12,7 +12,7 @@ BUILD_STYLE=${1:-debug}
 # CONFIGURATION
 
 shopt -s nullglob
-src_files=(src/*.cpp runtime/*.cpp runtime/${OS_NAME}/*.cpp)
+src_files=(src/*.cpp runtime/*.cpp)
 shopt -u nullglob
 
 BUILD_TIMEBOX=5
@@ -82,6 +82,8 @@ function compile_clang() {
 }
 
 compile_Darwin() {
+    src_files=(${src_files[@]} runtime/Darwin/*.cpp)
+    CFLAGS="-framework GLUT -framework OpenGL"
     compile_clang
 }
 
