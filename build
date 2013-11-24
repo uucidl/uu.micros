@@ -12,7 +12,7 @@ BUILD_STYLE=${1:-debug}
 # CONFIGURATION
 
 shopt -s nullglob
-src_files=(src/*.cpp)
+src_files=(src/*.cpp runtime/*.cpp runtime/${OS_NAME}/*.cpp)
 shopt -u nullglob
 
 BUILD_TIMEBOX=5
