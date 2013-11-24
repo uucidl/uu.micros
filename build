@@ -7,6 +7,8 @@ OS_NAME=$(uname -s)
 OS_RELEASE=$(uname -r)
 OS=${OS_NAME// /_}
 
+BUILD_STYLE=${1:-debug}
+
 # CONFIGURATION
 
 shopt -s nullglob
@@ -61,8 +63,13 @@ function compile_gxxlike() {
     CFLAGS="$CFLAGS -isystem ${HERE}/include"
     CFLAGS="$CFLAGS -Wall -Wextra -Werror"
     CFLAGS="$CFLAGS -Wno-padded -Wno-unused-parameter -Wno-conversion"
+
     if [[ -n "${VERBOSE}" ]]; then
 	CFLAGS="$CFLAGS -v"
+    fi
+
+    if [[ "debug" == "${BUILD_STYLE}" ]]; then
+	CFLAGS="$CFLAGS -g"
     fi
 
     "${CXX}" -std=c++11 ${CFLAGS} ${src_files[*]} -o ${BUILD_DIR}/main
@@ -163,7 +170,7 @@ function timed_compile() {
     printf '%s compilation took %d seconds\n' $cat $ts_elapsed
 }
 
-printf "INFO building on %s (%s)\n" ${HOSTNAME} ${OS}
+printf "INFO building on %s (os: %s, build style: %s)\n" "${HOSTNAME}" "${OS}" "${BUILD_STYLE}"
 rebuild_dir && timed_compile && code_format && check_clean
 
 if [[ $? -ne 0 ]]; then
