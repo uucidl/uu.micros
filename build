@@ -6,6 +6,7 @@ OS_NAME=$(uname -s)
 OS_RELEASE=$(uname -r)
 OS=${OS_NAME// /_}
 ASTYLE=astyle
+GIT=git
 BUILD_DIR=${HERE}/builds/${HOSTNAME}
 
 src_files=src/*.cpp
@@ -27,6 +28,13 @@ function code_format() {
     if [[ -n "${astyle_output}" ]]; then
 	printf "astyle returned '%s', please commit these modifications\n" "${astyle_output}"
 	exit 1
+    fi
+}
+
+function check_clean() {
+    git_output=$(${GIT} clean -n | grep '^Would remove')
+    if [[ -n "${git_output}" ]]; then
+	printf "WARNING some files were produced by the build outside of %s:\n%s\n" "${BUILD_DIR}" "${git_output}"
     fi
 }
 
@@ -63,6 +71,6 @@ function compile() {
 }
 
 printf "INFO building on %s (%s)\n" ${HOSTNAME} ${OS}
-code_format && rebuild_dir && compile
+code_format && rebuild_dir && compile && check_clean
 
 printf "INFO success\n"
