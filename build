@@ -60,6 +60,53 @@ compile_Darwin() {
     compile_clang
 }
 
+reg_query() {
+    path=$1
+    value_name=$2
+    reg query "$path" //v "$value_name" 2> /dev/null | awk -F'    ' '/'"${value_name}"'/ {print $4}'
+}
+
+posix_path() {
+    windows_path="$1"
+    echo $(cd "$windows_path" ; pwd -P)
+}
+
+windows_path() {
+    posix_path="$1"
+    echo $(cd "$posix_path" ; pwd -W) | sed -e 's,\/,\\,g'
+}
+
+set_vcenv() {
+    VS_WINDIR=$1
+
+    (cmd <<EOF
+bash -c set > "${BUILD_DIR}"/vcvarsall-prev.env
+"${VS_WINDIR}/vcvarsall.bat"
+bash -c set > "${BUILD_DIR}"/vcvarsall-after.env
+EOF
+    ) > /dev/null
+
+    diff -u "${BUILD_DIR}"/vcvarsall-prev.env "${BUILD_DIR}"/vcvarsall-after.env | grep -e '^\+[^\+]' | cut -c 2- | grep -v -e '^\!' > "${BUILD_DIR}/vc.env"
+
+    . ${BUILD_DIR}/vc.env
+}
+
+# windows 8 on msys
+compile_MINGW32_NT-6.2() {
+    VS_WINDIR=$(reg_query "HKLM\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7" 12.0)
+    set_vcenv "${VS_WINDIR}"
+
+    CL_CMD="cl.exe"
+    LIB_CMD="lib.exe"
+    LINK_CMD="link.exe"
+
+    BUILD_WINDIR="$(windows_path "${BUILD_DIR}/")"
+    MAIN_EXE="$BUILD_WINDIR"\\main.exe
+    export LIB
+    export INCLUDE
+    "${CL_CMD}" ${src_files} //nologo //Fo${BUILD_WINDIR} //Fe${MAIN_EXE}
+}
+
 function compile() {
     if [[ "function" = $(type -t "compile_${HOSTNAME}") ]]; then
 	compile_${HOSTNAME}
