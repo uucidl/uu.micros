@@ -32,7 +32,9 @@ function rebuild_dir() {
 
 function code_format() {
     astyle_output=$(
-	${ASTYLE} -Q --options=${HERE}/.astylerc ${src_files} ${header_files}
+	${ASTYLE} -n -Q --options=${HERE}/.astylerc \
+	    -r "src/*.*" -r "include/*.*" -r "runtime/*.*" |
+	    grep '^Formatted'
     )
     if [[ -n "${astyle_output}" ]]; then
 	printf "astyle returned '%s', please commit these modifications\n" "${astyle_output}"
@@ -144,7 +146,7 @@ function timed_compile() {
 }
 
 printf "INFO building on %s (%s)\n" ${HOSTNAME} ${OS}
-code_format && rebuild_dir && timed_compile && check_clean
+rebuild_dir && timed_compile && code_format && check_clean
 
 if [[ $? -ne 0 ]]; then
     printf "ERROR error\n"
