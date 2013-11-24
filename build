@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+## VARIABLES
+HERE=$(dirname $0)
+HOSTNAME=$(hostname)
+OS_NAME=$(uname -s)
+OS_RELEASE=$(uname -r)
+OS=${OS_NAME// /_}
 
 # CONFIGURATION
 
@@ -10,12 +16,6 @@ BUILD_TIMEBOX=5
 ASTYLE=astyle
 GIT=git
 
-## VARIABLES
-HERE=$(dirname $0)
-HOSTNAME=$(hostname)
-OS_NAME=$(uname -s)
-OS_RELEASE=$(uname -r)
-OS=${OS_NAME// /_}
 
 BUILD_DIR=${HERE}/builds/${HOSTNAME}
 
