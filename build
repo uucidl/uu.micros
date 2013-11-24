@@ -119,6 +119,17 @@ compile_MINGW32_NT-6.2() {
 }
 
 function compile() {
+    if [[ -z "$src_files" ]]; then
+	printf "ERROR no source files? %s\n" "${src_files}"
+    fi
+
+    for f in $src_files; do
+	if [[ ! -e ${f} ]] ; then
+	    printf "ERROR could not find source file %s in %s\n" "${f}" "${src_files}"
+	    exit 1
+	fi
+    done
+
     if [[ "function" = $(type -t "compile_${HOSTNAME}") ]]; then
 	compile_${HOSTNAME}
 	return
