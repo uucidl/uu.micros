@@ -63,11 +63,15 @@ compile_Darwin() {
 function compile() {
     if [[ "function" = $(type -t "compile_${HOSTNAME}") ]]; then
 	compile_${HOSTNAME}
-    elif [[ "function" = $(type -t "compile_${OS}") ]]; then
-	compile_${OS}
-    else
-	compile_default
+	return
     fi
+
+    if [[ "function" = $(type -t "compile_${OS}") ]]; then
+	compile_${OS}
+	return
+    fi
+
+    compile_default
 }
 
 printf "INFO building on %s (%s)\n" ${HOSTNAME} ${OS}
