@@ -1,19 +1,27 @@
 #!/usr/bin/env bash
 
+# SRC_FILES
+
+src_files=src/*.cpp
+header_files=include/*.h
+
+## TOOLS
+ASTYLE=astyle
+GIT=git
+
+## VARIABLES
 HERE=$(dirname $0)
 HOSTNAME=$(hostname)
 OS_NAME=$(uname -s)
 OS_RELEASE=$(uname -r)
 OS=${OS_NAME// /_}
-ASTYLE=astyle
-GIT=git
+
 BUILD_DIR=${HERE}/builds/${HOSTNAME}
 
-src_files=src/*.cpp
-header_files=include/*.h
+## IMPLEMENTATION
 
 function require_dir() {
-    mkdir -p ${BUILD_DIR}
+    mkdir -p "${BUILD_DIR}"
 }
 
 function rebuild_dir() {
@@ -47,7 +55,7 @@ function compile_gxxlike() {
     CFLAGS="$CFLAGS -isystem ${HERE}/include"
     CFLAGS="$CFLAGS -Wall -Wextra -Werror"
     CFLAGS="$CFLAGS -Wno-padded -Wno-unused-parameter -Wno-conversion"
-    ${CXX} -std=c++11 ${CFLAGS} ${src_files} -o ${BUILD_DIR}/main
+    "${CXX}" -std=c++11 ${CFLAGS} ${src_files} -o ${BUILD_DIR}/main
 }
 
 function compile_clang() {
