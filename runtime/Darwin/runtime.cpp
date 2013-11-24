@@ -6,6 +6,7 @@
 #include "../clock.h"
 
 #include "window.h"
+#include "play-audio.h"
 
 static void* std_alloc(struct Allocator* self, size_t size)
 {
@@ -24,6 +25,7 @@ static struct Clock* clock;
 void runtime_init ()
 {
         clock_init(&clock, &std_allocator);
+        open_stereo48khz_stream(clock);
         open_window("main", false);
 }
 

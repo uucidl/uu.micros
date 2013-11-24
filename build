@@ -88,6 +88,7 @@ function compile_clang() {
 function compile_Darwin() {
     src_files=(${src_files[@]} runtime/Darwin/*.cpp)
     CFLAGS="-Wno-deprecated-declarations -framework GLUT -framework OpenGL"
+    CFLAGS="$CFLAGS -framework CoreAudio"
     compile_clang
 }
 
