@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 ## VARIABLES
 HERE=$(dirname $0)
 HOSTNAME=$(hostname)
@@ -8,8 +9,10 @@ OS=${OS_NAME// /_}
 
 # CONFIGURATION
 
-src_files=src/*.cpp
-header_files=include/*.h
+shopt -s nullglob
+src_files=(src/*.cpp)
+shopt -u nullglob
+
 BUILD_TIMEBOX=5
 
 ## TOOLS
@@ -58,7 +61,7 @@ function compile_gxxlike() {
     CFLAGS="$CFLAGS -isystem ${HERE}/include"
     CFLAGS="$CFLAGS -Wall -Wextra -Werror"
     CFLAGS="$CFLAGS -Wno-padded -Wno-unused-parameter -Wno-conversion"
-    "${CXX}" -std=c++11 ${CFLAGS} ${src_files} -o ${BUILD_DIR}/main
+    "${CXX}" -std=c++11 ${CFLAGS} ${src_files[*]} -o ${BUILD_DIR}/main
 }
 
 function compile_clang() {
@@ -115,7 +118,7 @@ compile_MINGW32_NT-6.2() {
     MAIN_EXE="$BUILD_WINDIR"\\main.exe
     export LIB
     export INCLUDE
-    "${CL_CMD}" ${src_files} //nologo //Fo${BUILD_WINDIR} //Fe${MAIN_EXE}
+    "${CL_CMD}" ${src_files[*]} //nologo //Fo${BUILD_WINDIR} //Fe${MAIN_EXE}
 }
 
 function compile() {
@@ -123,7 +126,7 @@ function compile() {
 	printf "ERROR no source files? %s\n" "${src_files}"
     fi
 
-    for f in $src_files; do
+    for f in ${src_files[@]}; do
 	if [[ ! -e ${f} ]] ; then
 	    printf "ERROR could not find source file %s in %s\n" "${f}" "${src_files}"
 	    exit 1
