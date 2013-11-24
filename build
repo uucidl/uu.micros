@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-# SRC_FILES
+# CONFIGURATION
 
 src_files=src/*.cpp
 header_files=include/*.h
+BUILD_TIMEBOX=5
 
 ## TOOLS
 ASTYLE=astyle
@@ -129,8 +130,21 @@ function compile() {
     compile_default
 }
 
+function timed_compile() {
+    ts_start=$(date +'%s')
+    compile
+    ts_end=$(date +'%s')
+    ts_elapsed=$(($ts_end - $ts_start))
+
+    cat=INFO
+    if [[ ts_elapsed -gt ${BUILD_TIMEBOX} ]]; then
+	cat="ERROR"
+    fi
+    printf '%s compilation took %d seconds\n' $cat $ts_elapsed
+}
+
 printf "INFO building on %s (%s)\n" ${HOSTNAME} ${OS}
-code_format && rebuild_dir && compile && check_clean
+code_format && rebuild_dir && timed_compile && check_clean
 
 if [[ $? -ne 0 ]]; then
     printf "ERROR error\n"
