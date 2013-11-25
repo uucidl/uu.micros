@@ -128,6 +128,7 @@ compile_vstudio() {
     LINK_CMD="link.exe"
 
     CLFLAGS="//W3 //WX- //Zc:forScope"
+    LINK_FLAGSS="$LINK_FLAGS"
 
     BUILD_WINDIR="$(windows_path "${BUILD_DIR}/")"
     MAIN_EXE="$BUILD_WINDIR"\\main.exe
@@ -142,12 +143,14 @@ compile_vstudio() {
 	fi
     done
 
-    "${LINK_CMD}" //OUT:${MAIN_EXE} ${BUILD_DIR}/*.obj
+    "${LINK_CMD}" ${LINK_FLAGS} //OUT:${MAIN_EXE} ${BUILD_DIR}/*.obj
     return
 }
 
 # windows 8 on msys with vstudio express 2013
 compile_MINGW32_NT-6.2() {
+    src_files=(${src_files[@]} runtime/NT/*.cpp)
+    LINK_FLAGS="opengl32.lib"
     compile_vstudio "12.0"
 }
 
