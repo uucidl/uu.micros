@@ -118,20 +118,40 @@ EOF
     . ${BUILD_DIR}/vc.env
 }
 
-# windows 8 on msys
-compile_MINGW32_NT-6.2() {
-    VS_WINDIR=$(reg_query "HKLM\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7" 12.0)
+compile_vstudio() {
+    vstudio_ver=$1
+    VS_WINDIR=$(reg_query "HKLM\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7" "$vstudio_ver")
     set_vcenv "${VS_WINDIR}"
 
     CL_CMD="cl.exe"
     LIB_CMD="lib.exe"
     LINK_CMD="link.exe"
 
+    CLFLAGS="//W3 //WX- //Zc:forScope"
+    LINK_FLAGSS="$LINK_FLAGS"
+
     BUILD_WINDIR="$(windows_path "${BUILD_DIR}/")"
     MAIN_EXE="$BUILD_WINDIR"\\main.exe
     export LIB
     export INCLUDE
-    "${CL_CMD}" ${src_files[*]} //nologo //Fo${BUILD_WINDIR} //Fe${MAIN_EXE}
+
+    for srcf in "${src_files[@]}"; do
+	"${CL_CMD}" $CLFLAGS "$srcf" //c //nologo //Iinclude //Fo${BUILD_WINDIR}\\
+	if [[ $? -ne 0 ]]; then
+	  printf 'ERROR compiling %s\n' "$srcf"
+	  exit 1
+	fi
+    done
+
+    "${LINK_CMD}" ${LINK_FLAGS} //OUT:${MAIN_EXE} ${BUILD_DIR}/*.obj
+    return
+}
+
+# windows 8 on msys with vstudio express 2013
+compile_MINGW32_NT-6.2() {
+    src_files=(${src_files[@]} runtime/NT/*.cpp)
+    LINK_FLAGS="opengl32.lib"
+    compile_vstudio "12.0"
 }
 
 function compile() {
@@ -162,6 +182,7 @@ function compile() {
 function timed_compile() {
     ts_start=$(date +'%s')
     compile
+    RC=$?
     ts_end=$(date +'%s')
     ts_elapsed=$(($ts_end - $ts_start))
 
@@ -170,6 +191,7 @@ function timed_compile() {
 	cat="ERROR"
     fi
     printf '%s compilation took %d seconds\n' $cat $ts_elapsed
+    return $RC
 }
 
 printf "INFO building on %s (os: %s, build style: %s)\n" "${HOSTNAME}" "${OS}" "${BUILD_STYLE}"

@@ -1,8 +1,12 @@
 #include <math.h>
 
-#include <api.h>
-
+#if defined(_WIN32)
+#include <Windows.h>
+#include <gl/GL.h>
+#else
 #include <OpenGL/gl.h>
+#endif
+#include <api.h>
 
 extern void render_next_gl(uint64_t time_micros)
 {
