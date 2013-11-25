@@ -83,7 +83,7 @@ function compile_clang() {
 
 function compile_Darwin() {
     src_files=(${src_files[@]} runtime/Darwin/*.cpp)
-    CFLAGS="-framework GLUT -framework OpenGL"
+    CFLAGS="-Wno-deprecated-declarations -framework GLUT -framework OpenGL"
     compile_clang
 }
 
