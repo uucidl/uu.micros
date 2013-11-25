@@ -37,20 +37,20 @@ function rebuild_dir() {
 
 function code_format() {
     astyle_output=$(
-	${ASTYLE} -n -Q --options=${HERE}/.astylerc \
-	    -r "src/*.*" -r "include/*.*" -r "runtime/*.*" |
-	    grep '^Formatted'
+        ${ASTYLE} -n -Q --options=${HERE}/.astylerc \
+            -r "src/*.*" -r "include/*.*" -r "runtime/*.*" |
+            grep '^Formatted'
     )
     if [[ -n "${astyle_output}" ]]; then
-	printf "astyle returned '%s', please commit these modifications\n" "${astyle_output}"
-	exit 1
+        printf "astyle returned '%s', please commit these modifications\n" "${astyle_output}"
+        exit 1
     fi
 }
 
 function check_clean() {
     git_output=$(${GIT} clean -n | grep '^Would remove')
     if [[ -n "${git_output}" ]]; then
-	printf "WARNING some files were produced by the build outside of %s:\n%s\n" "${BUILD_DIR}" "${git_output}"
+        printf "WARNING some files were produced by the build outside of %s:\n%s\n" "${BUILD_DIR}" "${git_output}"
     fi
 }
 
@@ -65,11 +65,11 @@ function compile_gxxlike() {
     CFLAGS="$CFLAGS -Wno-padded -Wno-unused-parameter -Wno-conversion"
 
     if [[ -n "${VERBOSE}" ]]; then
-	CFLAGS="$CFLAGS -v"
+        CFLAGS="$CFLAGS -v"
     fi
 
     if [[ "debug" == "${BUILD_STYLE}" ]]; then
-	CFLAGS="$CFLAGS -g"
+        CFLAGS="$CFLAGS -g"
     fi
 
     "${CXX}" -std=c++11 ${CFLAGS} ${src_files[*]} -o ${BUILD_DIR}/main
@@ -142,11 +142,11 @@ function compile_vstudio() {
     export INCLUDE
 
     for srcf in "${src_files[@]}"; do
-	"${CL_CMD}" $CLFLAGS "$srcf" //c //nologo //Iinclude //Fo${BUILD_WINDIR}\\
-	if [[ $? -ne 0 ]]; then
-	  printf 'ERROR compiling %s\n' "$srcf"
-	  exit 1
-	fi
+        "${CL_CMD}" $CLFLAGS "$srcf" //c //nologo //Iinclude //Fo${BUILD_WINDIR}\\
+        if [[ $? -ne 0 ]]; then
+          printf 'ERROR compiling %s\n' "$srcf"
+          exit 1
+        fi
     done
 
     "${LINK_CMD}" ${LINK_FLAGS} //OUT:${MAIN_EXE} ${BUILD_DIR}/*.obj
@@ -169,24 +169,24 @@ function compile_MINGW32_NT-6.2() {
 
 function compile() {
     if [[ -z "$src_files" ]]; then
-	printf "ERROR no source files? %s\n" "${src_files}"
+        printf "ERROR no source files? %s\n" "${src_files}"
     fi
 
     for f in ${src_files[@]}; do
-	if [[ ! -e ${f} ]] ; then
-	    printf "ERROR could not find source file %s in %s\n" "${f}" "${src_files}"
-	    exit 1
-	fi
+        if [[ ! -e ${f} ]] ; then
+            printf "ERROR could not find source file %s in %s\n" "${f}" "${src_files}"
+            exit 1
+        fi
     done
 
     if [[ "function" = $(type -t "compile_${HOSTNAME}") ]]; then
-	compile_${HOSTNAME}
-	return
+        compile_${HOSTNAME}
+        return
     fi
 
     if [[ "function" = $(type -t "compile_${OS}") ]]; then
-	compile_${OS}
-	return
+        compile_${OS}
+        return
     fi
 
     compile_default
@@ -201,7 +201,7 @@ function timed_compile() {
 
     cat=INFO
     if [[ ts_elapsed -gt ${BUILD_TIMEBOX} ]]; then
-	cat="ERROR"
+        cat="ERROR"
     fi
     printf '%s compilation took %d seconds\n' $cat $ts_elapsed
     return $RC
