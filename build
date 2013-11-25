@@ -121,6 +121,12 @@ EOF
 function compile_vstudio() {
     vstudio_ver=$1
     VS_WINDIR=$(reg_query "HKLM\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7" "$vstudio_ver")
+    if [[ -z $VS_WINDIR ]]; then
+        printf 'ERROR cannot find visual studio version: %s\n' "$vstudio_ver"
+        exit 1
+    fi
+
+
     set_vcenv "${VS_WINDIR}"
 
     CL_CMD="cl.exe"
