@@ -7,11 +7,11 @@ extern void runtime_init();
 //! current time in microseconds
 extern uint64_t now_micros();
 
-//! entry point: called for each new video frame
+//! entry point: called for each new video frame (called in strict order)
 //! \param time_micros scheduling time for the frame
 extern void render_next_gl(uint64_t time_micros);
 
-//! entry point: called for each new audio frame
+//! entry point: called for each new audio frame (called in strict order)
 //! \param time_micros scheduling time for the first sample of the frame
 //! \param sample_count count of stereo audio sample to fill
 //! \param left buffer of audio samples for the left channel
