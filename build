@@ -153,6 +153,13 @@ function compile_vstudio() {
     return
 }
 
+# windows 7 on msys with vstudio express 2013
+function compile_MINGW32_NT-6.1() {
+    src_files=(${src_files[@]} runtime/NT/*.cpp)
+    LINK_FLAGS="opengl32.lib"
+    compile_vstudio "12.0"
+}
+
 # windows 8 on msys with vstudio express 2013
 function compile_MINGW32_NT-6.2() {
     src_files=(${src_files[@]} runtime/NT/*.cpp)
