@@ -81,29 +81,29 @@ function compile_clang() {
     compile_gxxlike
 }
 
-compile_Darwin() {
+function compile_Darwin() {
     src_files=(${src_files[@]} runtime/Darwin/*.cpp)
     CFLAGS="-framework GLUT -framework OpenGL"
     compile_clang
 }
 
-reg_query() {
+function reg_query() {
     path=$1
     value_name=$2
     reg query "$path" //v "$value_name" 2> /dev/null | awk -F'    ' '/'"${value_name}"'/ {print $4}'
 }
 
-posix_path() {
+function posix_path() {
     windows_path="$1"
     echo $(cd "$windows_path" ; pwd -P)
 }
 
-windows_path() {
+function windows_path() {
     posix_path="$1"
     echo $(cd "$posix_path" ; pwd -W) | sed -e 's,\/,\\,g'
 }
 
-set_vcenv() {
+function set_vcenv() {
     VS_WINDIR=$1
 
     (cmd <<EOF
@@ -118,7 +118,7 @@ EOF
     . ${BUILD_DIR}/vc.env
 }
 
-compile_vstudio() {
+function compile_vstudio() {
     vstudio_ver=$1
     VS_WINDIR=$(reg_query "HKLM\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7" "$vstudio_ver")
     set_vcenv "${VS_WINDIR}"
@@ -148,7 +148,7 @@ compile_vstudio() {
 }
 
 # windows 8 on msys with vstudio express 2013
-compile_MINGW32_NT-6.2() {
+function compile_MINGW32_NT-6.2() {
     src_files=(${src_files[@]} runtime/NT/*.cpp)
     LINK_FLAGS="opengl32.lib"
     compile_vstudio "12.0"
