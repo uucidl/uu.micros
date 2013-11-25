@@ -55,7 +55,7 @@ function check_clean() {
 }
 
 function compile_default() {
-    printf "define a compilation function for your OS ${OS} or host ${HOSTNAME}!"
+    printf "define a compilation function for your OS ${OS} or host ${HOSTNAME}!\n"
     exit 1
 }
 
