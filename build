@@ -127,11 +127,23 @@ compile_MINGW32_NT-6.2() {
     LIB_CMD="lib.exe"
     LINK_CMD="link.exe"
 
+    CLFLAGS="//W3 //WX- //Zc:forScope"
+
     BUILD_WINDIR="$(windows_path "${BUILD_DIR}/")"
     MAIN_EXE="$BUILD_WINDIR"\\main.exe
     export LIB
     export INCLUDE
-    "${CL_CMD}" ${src_files[*]} //nologo //Fo${BUILD_WINDIR} //Fe${MAIN_EXE}
+
+    for srcf in "${src_files[@]}"; do
+	"${CL_CMD}" $CLFLAGS "$srcf" //c //nologo //Iinclude //Fo${BUILD_WINDIR}\\
+	if [[ $? -ne 0 ]]; then
+	  printf 'ERROR compiling %s\n' "$srcf"
+	  exit 1
+	fi
+    done
+
+    "${LINK_CMD}" //OUT:${MAIN_EXE} ${BUILD_DIR}/*.obj
+    return
 }
 
 function compile() {
