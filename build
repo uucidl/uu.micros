@@ -118,9 +118,9 @@ EOF
     . ${BUILD_DIR}/vc.env
 }
 
-# windows 8 on msys
-compile_MINGW32_NT-6.2() {
-    VS_WINDIR=$(reg_query "HKLM\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7" 12.0)
+compile_vstudio() {
+    vstudio_ver=$1
+    VS_WINDIR=$(reg_query "HKLM\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7" "$vstudio_ver")
     set_vcenv "${VS_WINDIR}"
 
     CL_CMD="cl.exe"
@@ -144,6 +144,11 @@ compile_MINGW32_NT-6.2() {
 
     "${LINK_CMD}" //OUT:${MAIN_EXE} ${BUILD_DIR}/*.obj
     return
+}
+
+# windows 8 on msys with vstudio express 2013
+compile_MINGW32_NT-6.2() {
+    compile_vstudio "12.0"
 }
 
 function compile() {
