@@ -207,8 +207,14 @@ function timed_compile() {
     return $RC
 }
 
+function show_todo() {
+    grep -e 'TODO:' "${src_files[@]}" | while read match ; do
+        printf "WARNING %s\n" "$match"
+    done
+}
+
 printf "INFO building on %s (os: %s, build style: %s)\n" "${HOSTNAME}" "${OS}" "${BUILD_STYLE}"
-rebuild_dir && timed_compile && code_format && check_clean
+rebuild_dir && timed_compile && code_format && show_todo && check_clean
 
 if [[ $? -ne 0 ]]; then
     printf "ERROR error\n"
