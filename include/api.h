@@ -17,5 +17,5 @@ extern void render_next_gl(uint64_t time_micros);
 //! \param left buffer of audio samples for the left channel
 //! \param right buffer of audio samples for the right channel
 extern void render_next_2chn_48khz_audio(uint64_t time_micros,
-                int const sample_count, double* left[/*sample_count*/],
+                int const sample_count, double left[/*sample_count*/],
                 double right[/*sample_count*/]);
