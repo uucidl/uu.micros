@@ -26,12 +26,14 @@ ASTYLE=astyle
 GIT=git
 
 
-BUILD_DIR=${HERE}/builds/${HOSTNAME}
+BUILD_DIR="${HERE}"/builds/${HOSTNAME}
+OBJ_DIR="${BUILD_DIR}"/obj
 
 ## IMPLEMENTATION
 
 function require_dir() {
     mkdir -p "${BUILD_DIR}"
+    mkdir -p "${OBJ_DIR}"
 }
 
 function rebuild_dir() {
@@ -109,11 +111,12 @@ function windows_path() {
 }
 
 function set_vcenv() {
-    VS_WINDIR=$1
+    VS_WINDIR="$1"
+    VS_ARCH="$2"
 
     (cmd <<EOF
 bash -c set > "${BUILD_DIR}"/vcvarsall-prev.env
-"${VS_WINDIR}/vcvarsall.bat"
+"${VS_WINDIR}/vcvarsall.bat" ${VS_ARCH}
 bash -c set > "${BUILD_DIR}"/vcvarsall-after.env
 EOF
     ) > /dev/null
@@ -124,7 +127,8 @@ EOF
 }
 
 function compile_vstudio() {
-    vstudio_ver=$1
+    vstudio_ver="$1"
+    vstudio_arch="$2"
     VS_WINDIR=$(reg_query "HKLM\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7" "$vstudio_ver")
     if [[ -z $VS_WINDIR ]]; then
 	printf 'ERROR cannot find visual studio version: %s\n' "$vstudio_ver"
@@ -132,7 +136,7 @@ function compile_vstudio() {
     fi
 
 
-    set_vcenv "${VS_WINDIR}"
+    set_vcenv "${VS_WINDIR}" "${vstudio_arch}"
 
     CL_CMD="cl.exe"
     LIB_CMD="lib.exe"
@@ -143,33 +147,47 @@ function compile_vstudio() {
 
     BUILD_WINDIR="$(windows_path "${BUILD_DIR}/")"
     MAIN_EXE="$BUILD_WINDIR"\\main.exe
+    OBJ_WINDIR="$(windows_path "${OBJ_DIR}/")"
     export LIB
     export INCLUDE
 
     for srcf in "${src_files[@]}"; do
-	"${CL_CMD}" $CLFLAGS "$srcf" //c //Iinclude //Fo${BUILD_WINDIR}\\
+	"${CL_CMD}" $CLFLAGS "$srcf" //c //Iinclude //Fo"${OBJ_WINDIR}"\\
 	if [[ $? -ne 0 ]]; then
 	  printf 'ERROR compiling %s\n' "$srcf"
 	  exit 1
 	fi
     done
 
-    "${LINK_CMD}" ${LINK_FLAGS} //OUT:${MAIN_EXE} ${BUILD_DIR}/*.obj
+    "${LINK_CMD}" ${LINK_FLAGS} //OUT:${MAIN_EXE} "${OBJ_DIR}"/*.obj
     return
+}
+
+function compile_NT() {
+    src_files=("${src_files[@]}" runtime/NT/*.cpp)
+    LINK_FLAGS="opengl32.lib"
+    local ARCH=x86
+    compile_vstudio "12.0" "x86"
 }
 
 # windows 7 on msys with vstudio express 2013
 function compile_MINGW32_NT-6.1() {
-    src_files=(${src_files[@]} runtime/NT/*.cpp)
-    LINK_FLAGS="opengl32.lib"
-    compile_vstudio "12.0"
+    compile_NT
 }
 
 # windows 8 on msys with vstudio express 2013
 function compile_MINGW32_NT-6.2() {
-    src_files=(${src_files[@]} runtime/NT/*.cpp)
-    LINK_FLAGS="opengl32.lib"
-    compile_vstudio "12.0"
+    compile_NT
+}
+
+# windows 7 on msys with vstudio express 2013
+function compile_MINGW32_NT-6.1() {
+    compile_NT
+}
+
+# windows 8 on msys with vstudio express 2013
+function compile_MINGW32_NT-6.2() {
+    compile_NT
 }
 
 function compile() {
@@ -177,7 +195,7 @@ function compile() {
 	printf "ERROR no source files? %s\n" "${src_files}"
     fi
 
-    for f in ${src_files[@]}; do
+    for f in "${src_files[@]}"; do
 	if [[ ! -e ${f} ]] ; then
 	    printf "ERROR could not find source file %s in %s\n" "${f}" "${src_files}"
 	    exit 1
