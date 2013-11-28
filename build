@@ -78,7 +78,14 @@ function compile_gxxlike() {
 	CFLAGS="$CFLAGS -g"
     fi
 
-    "${CXX}" -std=c++11 ${CFLAGS} ${src_files[*]} -o ${BUILD_DIR}/main
+    if [[ "static-analysis" == "${BUILD_STYLE}" ]]; then
+	CFLAGS="$CFLAGS --analyze"
+	LDFLAGS=""
+	"${CXX}" -std=c++11 ${CFLAGS} ${LDFLAGS} "${src_files[@]}"
+	return
+    fi
+
+    "${CXX}" -std=c++11 ${CFLAGS} ${LDFLAGS} "${src_files[@]}" -o "${BUILD_DIR}/main"
 }
 
 function compile_clang() {
@@ -89,8 +96,8 @@ function compile_clang() {
 
 function compile_Darwin() {
     src_files=(${src_files[@]} runtime/Darwin/*.cpp)
-    CFLAGS="-Wno-deprecated-declarations -framework GLUT -framework OpenGL"
-    CFLAGS="$CFLAGS -framework CoreAudio"
+    CFLAGS="$CFLAGS -Wno-deprecated-declarations"
+    LDFLAGS="$LDFLAGS -framework GLUT -framework OpenGL -framework CoreAudio"
     compile_clang
 }
 
