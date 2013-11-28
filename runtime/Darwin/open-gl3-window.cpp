@@ -59,7 +59,9 @@ void open_window(char const * title, bool const prefers_fullscreen)
                 window_wh[1] *= 1.0 / sqrt(2.0);
         }
 
-        glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_MULTISAMPLE);
+        glutInitDisplayMode(GLUT_3_2_CORE_PROFILE
+                            | GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH
+                            | GLUT_MULTISAMPLE);
         glutInitWindowPosition(100, 100);
         glutInitWindowSize(window_wh[0], window_wh[1]);
 
