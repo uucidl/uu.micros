@@ -118,9 +118,11 @@ function compile_clang() {
 }
 
 function compile_Darwin() {
-    src_files=(${src_files[@]} "${HERE}"/runtime/Darwin/*.cpp)
+    src_files=(${src_files[@]}
+	"${HERE}"/runtime/Darwin/*.cpp
+	"${HERE}"/runtime/open_window_with_glfw/*.cpp)
     CFLAGS="$CFLAGS -Wno-deprecated-declarations -I${HERE}/libs/glew/include"
-    LDFLAGS="$LDFLAGS -framework GLUT -framework OpenGL -framework CoreAudio"
+    LDFLAGS="$LDFLAGS -framework Cocoa -framework IOKit -framework OpenGL -framework CoreAudio"
     LDFLAGS="$LDFLAGS -L${HERE}/libs/Darwin_${CPU_NAME}"
     CFLAGS="$CFLAGS -I${HERE}/libs"
     LDFLAGS="$LDFLAGS -lglfw3"
@@ -207,7 +209,9 @@ function compile_vstudio() {
 function compile_NT() {
     local vstudio_arch=x86
     local native_libs_dir=${HERE}/libs/NT_${vstudio_arch}
-    src_files=("${src_files[@]}" "${HERE}"/runtime/NT/*.cpp)
+    src_files=(${src_files[@]}
+	"${HERE}"/runtime/NT/*.cpp
+	"${HERE}"/runtime/open_window_with_glfw/*.cpp)
     CLFLAGS="$CLFLAGS //I""$(windows_path "${HERE}"/libs/glew/include)"
     CLFLAGS="$CLFLAGS //DGLEW_STATIC"
     CLFLAGS="$CLFLAGS //I""$(windows_path "${HERE}/libs")"
