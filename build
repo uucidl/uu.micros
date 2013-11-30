@@ -13,7 +13,8 @@ BUILD_STYLE=${1:-debug}
 # CONFIGURATION
 
 shopt -s nullglob
-src_files=(src/*.cpp runtime/*.cpp)
+src_files=("${HERE}"/src/*.cpp "${HERE}"/runtime/*.cpp)
+c_src_files=("${HERE}"/libs/glew/src/glew.c)
 shopt -u nullglob
 
 BUILD_TIMEBOX=5
@@ -44,7 +45,7 @@ function rebuild_dir() {
 function code_format() {
     astyle_output=$(
 	${ASTYLE} -n -Q --options=${HERE}/.astylerc \
-	    -r "src/*.*" -r "include/*.*" -r "runtime/*.*" |
+	    -r "${HERE}/src/*.*" -r "${HERE}/include/*.*" -r "${HERE}/runtime/*.*" |
 	    grep '^Formatted'
     )
     if [[ -n "${astyle_output}" ]]; then
@@ -81,22 +82,44 @@ function compile_gxxlike() {
     if [[ "static-analysis" == "${BUILD_STYLE}" ]]; then
 	CFLAGS="$CFLAGS --analyze"
 	LDFLAGS=""
+	"${CXX}" -std=c11 ${CFLAGS} ${LDFLAGS} "${c_src_files[@]}"
 	"${CXX}" -std=c++11 ${CFLAGS} ${LDFLAGS} "${src_files[@]}"
 	return
     fi
 
-    "${CXX}" -std=c++11 ${CFLAGS} ${LDFLAGS} "${src_files[@]}" -o "${BUILD_DIR}/main"
+    for srcf in "${c_src_files[@]}"; do
+	local obj="${OBJ_DIR}/"$(basename "${srcf}").o
+	[[ ! -e $obj ]] || (printf 'ERROR %s already exists' "$obj"; exit 1)
+	"${CC}" -c -std=c11 ${CFLAGS} "$srcf" -o "$obj"
+	if [[ $? -ne 0 ]]; then
+	  printf 'ERROR compiling %s\n' "$srcf"
+	  exit 1
+	fi
+    done
+
+    for srcf in "${src_files[@]}"; do
+	local obj="${OBJ_DIR}/"$(basename "${srcf}").o
+	[[ ! -e $obj ]] || (printf 'ERROR %s already exists' "$obj"; exit 1)
+	"${CXX}" -c -std=c++11 ${CFLAGS} "$srcf" -o "$obj"
+	if [[ $? -ne 0 ]]; then
+	  printf 'ERROR compiling %s\n' "$srcf"
+	  exit 1
+	fi
+    done
+
+    "${CXX}" -std=c++11 ${CFLAGS} ${LDFLAGS} "${OBJ_DIR}"/*.o -o "${BUILD_DIR}/main"
 }
 
 function compile_clang() {
     CFLAGS="$CFLAGS -stdlib=libc++"
     CXX=clang++
+    CC=clang
     compile_gxxlike
 }
 
 function compile_Darwin() {
-    src_files=(${src_files[@]} runtime/Darwin/*.cpp)
-    CFLAGS="$CFLAGS -Wno-deprecated-declarations"
+    src_files=(${src_files[@]} "${HERE}"/runtime/Darwin/*.cpp)
+    CFLAGS="$CFLAGS -Wno-deprecated-declarations -I${HERE}/libs/glew/include"
     LDFLAGS="$LDFLAGS -framework GLUT -framework OpenGL -framework CoreAudio"
     compile_clang
 }
@@ -166,25 +189,27 @@ function compile_vstudio() {
 	fi
     done
 
+    for srcf in "${c_src_files[@]}"; do
+	"${CL_CMD}" $CLFLAGS "$srcf" //c //Iinclude //Fo${OBJ_WINDIR}\\
+	if [[ $? -ne 0 ]]; then
+	  printf 'ERROR compiling %s\n' "$srcf"
+	  exit 1
+	fi
+    done
+
     "${LINK_CMD}" ${LINK_FLAGS} //OUT:${MAIN_EXE} "${OBJ_DIR}"/*.obj
     return
 }
 
 function compile_NT() {
-    src_files=("${src_files[@]}" runtime/NT/*.cpp)
+    src_files=("${src_files[@]}" "${HERE}"/runtime/NT/*.cpp)
+    CLFLAGS="$CLFLAGS //I""$(windows_path "${HERE}"/libs/glew/include)"
+    CLFLAGS="$CLFLAGS //DGLEW_STATIC"
+    CLFLAGS="$CLFLAGS //I""$(windows_path "${HERE}/libs")"
+
     LINK_FLAGS="opengl32.lib"
     local ARCH=x86
     compile_vstudio "12.0" "x86"
-}
-
-# windows 7 on msys with vstudio express 2013
-function compile_MINGW32_NT-6.1() {
-    compile_NT
-}
-
-# windows 8 on msys with vstudio express 2013
-function compile_MINGW32_NT-6.2() {
-    compile_NT
 }
 
 # windows 7 on msys with vstudio express 2013

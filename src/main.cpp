@@ -1,11 +1,8 @@
 #include <math.h>
+#include <stdio.h> // for printf
 
-#if defined(_WIN32)
-#include <Windows.h>
-#include <gl/GL.h>
-#else
-#include <OpenGL/gl.h>
-#endif
+#include <GL/glew.h>
+
 #include <api.h>
 
 extern void render_next_2chn_48khz_audio(uint64_t time_micros,
@@ -45,6 +42,15 @@ extern void render_next_2chn_48khz_audio(uint64_t time_micros,
 
 extern void render_next_gl(uint64_t time_micros)
 {
+        static class DoOnce
+        {
+        public:
+                DoOnce()
+                {
+                        printf("OpenGL version %s\n", glGetString(GL_VERSION));
+                }
+        } init;
+
         double const phase = 6.30 * time_micros / 1e6 / 11.0;
         float sincos[2] = {
                 static_cast<float>(0.49 * sin(phase)),
