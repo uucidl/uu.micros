@@ -1,6 +1,7 @@
 #include <math.h> // sqrt
 #include <stdio.h> // snprintf
 
+#include <GL/glew.h>
 #include <GLUT/glut.h>
 
 #include "window.h"
@@ -76,6 +77,15 @@ void open_window(char const * title, bool const prefers_fullscreen)
         }
 
         register_window_callbacks(window_wh);
+
+        glewExperimental = GL_TRUE;
+        GLenum err = glewInit();
+        if (GLEW_OK != err) {
+                /* Problem: glewInit failed, something is seriously wrong. */
+                fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+                return;
+        }
+        fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
 
         glutMainLoop();
 }
