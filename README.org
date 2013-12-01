@@ -1,6 +1,7 @@
 * Discussion
 
-This was prompted by alex' tweet about doing a round robin demo.
+This repository provides a playground for alex' tweet about doing a
+"round robin" demo project
 
 https://twitter.com/mmalex/status/403818676224544768
 #+begin_example
@@ -10,11 +11,8 @@ https://twitter.com/mmalex/status/403818676224544768
 <mmalex> @javiercampos heh :) I guess you're right! What's the right word...
 <LiaSae> @mmalex The technical term for this in the cross-stitch word is round-robin :) Could apply as well!
 <LiaSae> @mmalex Make that "world", d'oh.
-<mmalex> @LiaSae we could upload the result to ravelry! :)
-<‏LiaSae> @mmalex I'd love to see more fabric-like style in games (Epic Yarn, Little Big Planet, and.... there ain't much else) / demos, so why not :)
 <kamidphish> @mmalex Is that like the old C64 demos?
 <nvining> @mmalex I'm in.
-<_psonice> @LiaSae there was zen bondage / zen bound, if that counts. A game full of soft objects/scenery instead of hard would be cool tho! @mmalex
 <Flawe> @mmalex very cool idea!
 <uucidl> @mmalex I always wanted to do this yet it's always a problem with coders being anal about their frameworks and build systems etc..
 <mmalex> @uucidl lowest common denominator ftw! build batch file/shellscript, minimum external deps (GL/playmp3()/gnurocket/stb_*), GO! ?
@@ -26,16 +24,23 @@ https://twitter.com/mmalex/status/403818676224544768
 <keyboardjockey> @mmalex interesting. Should have each person branch off and have the next dev perform the merge, to become familiar.
 #+end_example
 
+Tangent about fabric:
+
+#+begin_example
+<mmalex> @LiaSae we could upload the result to ravelry! :)
+<‏LiaSae> @mmalex I'd love to see more fabric-like style in games (Epic Yarn, Little Big Planet, and.... there ain't much else) / demos, so why not :)
+<_psonice> @LiaSae there was zen bondage / zen bound, if that counts. A game full of soft objects/scenery instead of hard would be cool tho! @mmalex
+#+end_example
+
 * Specs
 
 - shell script build (clean + rebuild + test + run)
-- host system with GL and audio
+- host system with =OpenGL 3.2= core context and 48khz stereo audio
 - source only libraries accepted
-- C++ only supported
+- =C++11= only supported
 
 Personal comment:
-- I don't like people arguing about code style, so having an automatic
-  formatter could help. (see artistic style)
+- To avoid arguing about code style, putting in the "artistic style" code formatter.
 
 * Requirements
 
@@ -44,6 +49,7 @@ find it at http://git-scm.com/
 - a C++11 compiler (gcc, clang, visual studio)
 
 All the rest shipped within the tree
+
 * API
 :PROPERTIES:
 :mkdirp: yes
@@ -77,9 +83,9 @@ extern void render_next_2chn_48khz_audio(uint64_t time_micros,
 
 * Writing a new runtime
 
-Put your os specific code under a subdirectory of runtime like so:
+Put your os specific code under a subdirectory of runtime like so
 
-runtime/Darwin/display.cpp
+=runtime/Darwin/display.cpp=
 
 Then hook it up inside the platform specific compile function.
 
@@ -89,32 +95,30 @@ demo when pressing ESC or Right clicking.
 It should continuously redisplay frames and delegate their rendering
 to the API entry points.
 
-* Ideas
+* Changing the code style
 
-- Use Regal as a compatibility layer for all the various opengl
-  implementations
+Edit the .astylerc file at the root
+
+Don't put editor specific stuff in source files
+
+* Build script
+
+The script always rebuild the entire demo. It should not grow big
+enough for it to matter, and it is a guarantee of short feedback
+loops.
+
+It should always create files in a separate dirs according to hostname
+
+The build script can be edited to define compilation flags per machine
+or platform (for custom/weird environments)
+
+Simply add a new function to add your per machine customization.
+
+* Ideas
 
 - in lib you will find all stb libs for image loading, truetype/vorbis
   support at least. All the rest can come from demo or c++11 or any
   other source available lib that can be put in the tree.
 
-- we enforce a single C++ standard (C++11)
-
-- we enforce a single code style (the build script format files
-  automatically)
-
-Linux code style with 8 space indents. Can evolve / be edited in the .astylerc
-file if you prefer something else for your own coding segment.
-
-Don't put editor specific stuff in source files
-
 - a base runtime will be provided for mac/linux/pc (based on the most
   basic lib available)
-
-- build script always rebuild the entire demo (it should not grow big
-  enough for it to matter)
-
-- the build script always create builds in a separate dirs according to hostname
-
-- the build script can be edited to define compilation flags per
-  machine or platform (for custom/weird environments)
