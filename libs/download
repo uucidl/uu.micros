@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+curl -O http://nothings.org/stb/stb_howto.txt
+curl -O http://nothings.org/stb_image.c
+curl -O http://nothings.org/stb_vorbis/stb_vorbis.c
+curl -O http://nothings.org/stb/stb_truetype.h
+curl -O http://nothings.org/stb/stb_image_write.h
+curl -O http://nothings.org/stb/stb_perlin.h
+
+printf "ujson4c comes from %s\n" "https://github.com/esnme/ujson4c/" 

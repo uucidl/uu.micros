@@ -15,6 +15,7 @@ BUILD_STYLE=${1:-debug}
 shopt -s nullglob
 src_files=("${HERE}"/src/*.cpp "${HERE}"/runtime/*.cpp)
 c_src_files=("${HERE}"/libs/glew/src/glew.c)
+c_src_files=(${c_src_files[@]} "${HERE}"/libs/ujson4c/src/*.c)
 shopt -u nullglob
 
 BUILD_TIMEBOX=5
@@ -121,7 +122,9 @@ function compile_Darwin() {
     src_files=(${src_files[@]}
 	"${HERE}"/runtime/Darwin/*.cpp
 	"${HERE}"/runtime/open_window_with_glfw/*.cpp)
-    CFLAGS="$CFLAGS -Wno-deprecated-declarations -I${HERE}/libs/glew/include"
+    CFLAGS="$CFLAGS -Wno-deprecated-declarations"
+    CFLAGS="$CFLAGS -I${HERE}/libs/glew/include"
+    CFLAGS="$CFLAGS -I${HERE}/libs/ujson4c/include"
     LDFLAGS="$LDFLAGS -framework Cocoa -framework IOKit -framework OpenGL -framework CoreAudio"
     LDFLAGS="$LDFLAGS -L${HERE}/libs/Darwin_${CPU_NAME}"
     CFLAGS="$CFLAGS -I${HERE}/libs"
@@ -214,6 +217,7 @@ function compile_NT() {
 	"${HERE}"/runtime/open_window_with_glfw/*.cpp)
     CLFLAGS="$CLFLAGS //I""$(windows_path "${HERE}"/libs/glew/include)"
     CLFLAGS="$CLFLAGS //DGLEW_STATIC"
+    CLFLAGS="$CLFLAGS //I""$(windows_path "${HERE}"/libs/ujson4c/include)"
     CLFLAGS="$CLFLAGS //I""$(windows_path "${HERE}/libs")"
 
     LINK_FLAGS="opengl32.lib"
