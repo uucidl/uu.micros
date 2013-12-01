@@ -58,7 +58,7 @@ All the rest shipped within the tree
 Using our experience to define the most minimal and useful hooks to
 code a demo we come with the following:
 
-#+begin_src cpp :mkdir yes :tangle include/api.h
+#+begin_src c++ :mkdir yes :tangle include/api.h
 #include <cstdint>
 
 //! initialize runtime (and start the demo)
