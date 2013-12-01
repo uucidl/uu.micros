@@ -187,7 +187,7 @@ function compile_vstudio() {
     export INCLUDE
 
     for srcf in "${src_files[@]}"; do
-	"${CL_CMD}" $CLFLAGS "$srcf" //c //Iinclude //Fo"${OBJ_WINDIR}"\\
+	"${CL_CMD}" $CLFLAGS "$srcf" //EHsc //c //Iinclude //Fo"${OBJ_WINDIR}"\\
 	if [[ $? -ne 0 ]]; then
 	  printf 'ERROR compiling %s\n' "$srcf"
 	  exit 1
@@ -222,6 +222,9 @@ function compile_NT() {
     # glfw3
     CLFLAGS="$CLFLAGS //MD"
     LINK_FLAGS="$LINK_FLAGS gdi32.lib user32.lib glfw3.lib"
+
+    # audio using WASAPI
+    LINK_FLAGS="$LINK_FLAGS ole32.lib"
 
     compile_vstudio "12.0" "${vstudio_arch}"
 }
