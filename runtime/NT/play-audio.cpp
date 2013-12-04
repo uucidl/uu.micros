@@ -219,14 +219,18 @@ extern void open_stereo48khz_stream(struct Clock* clock)
         if (S_FALSE == hr) {
                 BREAK_ON_ERROR (format->cbSize == closest_format->cbSize
                                 || FAIL_WITH("unexpected format type\n"));
-
                 formatex = *((WAVEFORMATEXTENSIBLE*) closest_format);
                 CoTaskMemFree(closest_format);
         }
 
+        DWORD stream_flags = AUDCLNT_STREAMFLAGS_EVENTCALLBACK;
+        if (format->nSamplesPerSec != audio_hz) {
+                stream_flags |= AUDCLNT_STREAMFLAGS_RATEADJUST;
+        }
+
         hr = audio_client->Initialize(
                      AUDCLNT_SHAREMODE_SHARED,
-                     AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
+                     stream_flags,
                      0,
                      0,
                      format,
@@ -235,6 +239,18 @@ extern void open_stereo48khz_stream(struct Clock* clock)
                        || FAIL_WITH("could not initialize audio client\n"));
         printf("initialized audio client with format: %d hz\n",
                format->nSamplesPerSec);
+
+        if (AUDCLNT_STREAMFLAGS_RATEADJUST & stream_flags) {
+                IAudioClockAdjustment* clock_adjustment;
+
+                hr = audio_client->GetService(__uuidof(IAudioClockAdjustment),
+                                              (void**) &clock_adjustment);
+                BREAK_ON_ERROR(OS_SUCCESS(hr)
+                               || FAIL_WITH("could not get clock adjustment service\n"));
+                hr = clock_adjustment->SetSampleRate((float) audio_hz);
+                BREAK_ON_ERROR(OS_SUCCESS(hr)
+                               || FAIL_WITH("could not adjust sample rate to %d\n", audio_hz));
+        }
 
         struct AudioCallbackState* callback_state = new AudioCallbackState;
         callback_state->clock = clock;
