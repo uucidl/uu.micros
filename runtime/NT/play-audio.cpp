@@ -190,19 +190,25 @@ extern void open_stereo48khz_stream(struct Clock* clock)
 
         int const audio_hz = 48000;
 
-        WAVEFORMATEX format = {
-                WAVE_FORMAT_IEEE_FLOAT,
-                2,
-                audio_hz,
-                audio_hz * sizeof(float) * 2,
-                sizeof(float)*2,
+        WAVEFORMATEXTENSIBLE formatex = {
+                {
+                        WAVE_FORMAT_EXTENSIBLE,
+                        2,
+                        audio_hz,
+                        audio_hz * sizeof(float) * 2,
+                        sizeof(float)*2,
+                        sizeof(float)*8,
+                        sizeof(WAVEFORMATEXTENSIBLE) - sizeof(WAVEFORMATEX),
+                },
                 sizeof(float)*8,
-                0,
+                SPEAKER_ALL,
+                KSDATAFORMAT_SUBTYPE_IEEE_FLOAT,
         };
+        WAVEFORMATEX* format = &formatex.Format;
         WAVEFORMATEX* closest_format;
         hr = audio_client->IsFormatSupported(
                      AUDCLNT_SHAREMODE_SHARED,
-                     &format,
+                     format,
                      &closest_format);
         BREAK_ON_ERROR(OS_SUCCESS(hr)
                        || FAIL_WITH("could not get supported format\n"));
@@ -211,7 +217,10 @@ extern void open_stereo48khz_stream(struct Clock* clock)
                        FAIL_WITH("format definitely not supported\n"));
 
         if (S_FALSE == hr) {
-                format = *closest_format;
+                BREAK_ON_ERROR (format->cbSize == closest_format->cbSize
+                                || FAIL_WITH("unexpected format type\n"));
+
+                formatex = *((WAVEFORMATEXTENSIBLE*) closest_format);
                 CoTaskMemFree(closest_format);
         }
 
@@ -220,12 +229,12 @@ extern void open_stereo48khz_stream(struct Clock* clock)
                      AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
                      0,
                      0,
-                     &format,
+                     format,
                      NULL);
         BREAK_ON_ERROR(OS_SUCCESS(hr)
                        || FAIL_WITH("could not initialize audio client\n"));
         printf("initialized audio client with format: %d hz\n",
-               format.nSamplesPerSec);
+               format->nSamplesPerSec);
 
         struct AudioCallbackState* callback_state = new AudioCallbackState;
         callback_state->clock = clock;
