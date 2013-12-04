@@ -8,6 +8,19 @@ OS_RELEASE=$(uname -r)
 CPU_NAME=$(uname -m)
 OS=${OS_NAME// /_}
 
+case $1 in
+    -v)
+        VERBOSE=true
+        shift
+        ;;
+    -h)
+        printf -- "Usage: %s [-v] [<build-style>\n" "${0}"
+        printf -- "\t\t-v: verbose operation\n"
+        exit 1
+        shift
+        ;;
+esac
+
 BUILD_STYLE=${1:-debug}
 
 # CONFIGURATION
@@ -290,6 +303,11 @@ function show_todo() {
 }
 
 printf "INFO building on %s (os: %s, cpu: %s, build style: %s)\n" "${HOSTNAME}" "${OS}" "${CPU_NAME}" "${BUILD_STYLE}"
+
+if [[ -n $VERBOSE ]]; then
+    set -x
+fi
+
 rebuild_dir && timed_compile && code_format && show_todo && check_clean
 
 if [[ $? -ne 0 ]]; then
