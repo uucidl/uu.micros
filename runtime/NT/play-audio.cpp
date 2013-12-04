@@ -171,11 +171,9 @@ extern void open_stereo48khz_stream(struct Clock* clock)
         BREAK_ON_ERROR(OS_SUCCESS(hr) || FAIL_WITH("could not initialize COM\n"));
 
         IMMDeviceEnumerator* device_enumerator;
-        CLSID const CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
-        IID const IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
         hr = CoCreateInstance(
-                     CLSID_MMDeviceEnumerator, NULL,
-                     CLSCTX_ALL, IID_IMMDeviceEnumerator,
+                     __uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL,
+                     __uuidof(IMMDeviceEnumerator),
                      (void**)&device_enumerator);
         BREAK_ON_ERROR(OS_SUCCESS(hr) || FAIL_WITH("could not get enumerator\n"));
 
