@@ -2,6 +2,14 @@
 
 Changes in reverse order of appearance
 
+* v0.2
+- Windows: Correct query for audio streams. The previous version would
+  result in no sound if the user had set a shared audio mode to
+  another format in the control panel.
+- Windows: ask for resampling if the audio sample rates differ.
+- Build: now accepts -h for help and -v shows all the performed
+  commands
+
 * v0.1
 
 - Multiplatform build script.
