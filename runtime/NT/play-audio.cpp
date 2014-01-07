@@ -200,7 +200,7 @@ extern void open_stereo48khz_stream(struct Clock* clock)
                         sizeof(float)*8,
                         sizeof(WAVEFORMATEXTENSIBLE) - sizeof(WAVEFORMATEX),
                 },
-                sizeof(float)*8,
+                { sizeof(float)*8 },
                 SPEAKER_ALL,
                 KSDATAFORMAT_SUBTYPE_IEEE_FLOAT,
         };
@@ -237,7 +237,7 @@ extern void open_stereo48khz_stream(struct Clock* clock)
                      NULL);
         BREAK_ON_ERROR(OS_SUCCESS(hr)
                        || FAIL_WITH("could not initialize audio client\n"));
-        printf("initialized audio client with format: %d hz\n",
+        printf("initialized audio client with format: %lu hz\n",
                format->nSamplesPerSec);
 
         if (AUDCLNT_STREAMFLAGS_RATEADJUST & stream_flags) {
