@@ -1,7 +1,23 @@
-* Discussion
+* Micros, a playground for demos
 
-This repository provides a playground for alex' tweet about doing a
-"round robin" demo project
+This repository is a minimalistic playground for writing demos against OSX or Windows, 
+with an emphasis on making it possible to collaborate easily between multiple individuals.
+
+The build system is self-contained, it enforces a strict coding standard with warnings all
+activated and automatically formatting the code for you.
+
+It standardizes on C++11 and OpenGL 3.2 and targets Darwin/OSX past 10.7 (Lion) and 
+NT/Windows 7 and beyond.
+
+It’s all on github ready to be forked or downloaded:
+    http://github.com/uucidl/uu.micros
+
+Fork it, and compose your demo inside src/. Start with main.cpp to get an idea.
+
+* History
+
+I decided to write this playground when reading Alex Evans' idea about
+doing "round robin" demo projects:
 
 https://twitter.com/mmalex/status/403818676224544768
 #+begin_example
@@ -44,11 +60,13 @@ Personal comment:
 
 * Requirements
 
-- git (+ on windows the msys environment that comes with it)
+- Git (+ on windows the msys environment that comes with it)
 find it at http://git-scm.com/
+- Bash (on windows, use git bash)
 - a C++11 compiler (gcc, clang, visual studio)
+- OSX >= 10.7 (Darwin >= 11.4) and Windows >= 7 (NT >= 6.1)
 
-All the rest shipped within the tree
+All the rest is shipped within the tree
 
 * API
 :PROPERTIES:
