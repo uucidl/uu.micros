@@ -178,8 +178,8 @@ EOF
 }
 
 function compile_vstudio() {
-    vstudio_ver="$1"
-    vstudio_arch="$2"
+    vstudio_ver="${1:?missing vstudio version}"
+    vstudio_arch="${2:?missing architecture}"
     VS_WINDIR=$(reg_query "HKLM\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7" "$vstudio_ver")
     if [[ -z $VS_WINDIR ]]; then
 	printf 'ERROR cannot find visual studio version: %s\n' "$vstudio_ver"
