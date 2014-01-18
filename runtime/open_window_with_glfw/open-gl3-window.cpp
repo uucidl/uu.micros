@@ -1,5 +1,6 @@
 #include <math.h> // sqrt
 #include <stdio.h> // snprintf
+#include <exception>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -83,7 +84,12 @@ void open_window(char const * title, bool const prefers_fullscreen)
                 glfwGetFramebufferSize(window, &width, &height);
                 glViewport(0, 0, width, height);
 
-                render_next_gl(now_micros());
+                try {
+                        render_next_gl(now_micros());
+                } catch (std::exception& e) {
+                        fprintf(stderr, "caught exception: '%s', exiting.\n", e.what());
+                        break;
+                }
                 glfwSwapBuffers(window);
                 glfwPollEvents();
         }
