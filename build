@@ -58,20 +58,20 @@ function rebuild_dir() {
 
 function code_format() {
     astyle_output=$(
-	${ASTYLE} -n -Q --options=${HERE}/.astylerc \
-	    -r "${HERE}/src/*.*" -r "${HERE}/include/*.*" -r "${HERE}/runtime/*.*" |
-	    grep '^Formatted'
+        ${ASTYLE} -n -Q --options=${HERE}/.astylerc \
+            -r "${HERE}/src/*.*" -r "${HERE}/include/*.*" -r "${HERE}/runtime/*.*" |
+            grep '^Formatted'
     )
     if [[ -n "${astyle_output}" ]]; then
-	printf "astyle returned '%s', please commit these modifications\n" "${astyle_output}"
-	exit 1
+        printf "astyle returned '%s', please commit these modifications\n" "${astyle_output}"
+        exit 1
     fi
 }
 
 function check_clean() {
     git_output=$(${GIT} clean -n | grep '^Would remove')
     if [[ -n "${git_output}" ]]; then
-	printf "WARNING some files were produced by the build outside of %s:\n%s\n" "${BUILD_DIR}" "${git_output}"
+        printf "WARNING some files were produced by the build outside of %s:\n%s\n" "${BUILD_DIR}" "${git_output}"
     fi
 }
 
@@ -86,39 +86,39 @@ function compile_gxxlike() {
     CFLAGS="$CFLAGS -Wno-padded -Wno-unused-parameter -Wno-conversion"
 
     if [[ -n "${VERBOSE}" ]]; then
-	CFLAGS="$CFLAGS -v"
+        CFLAGS="$CFLAGS -v"
     fi
 
     if [[ "debug" == "${BUILD_STYLE}" ]]; then
-	CFLAGS="$CFLAGS -g"
+        CFLAGS="$CFLAGS -g"
     fi
 
     if [[ "static-analysis" == "${BUILD_STYLE}" ]]; then
-	CFLAGS="$CFLAGS --analyze"
-	LDFLAGS=""
-	"${CXX}" -std=c11 ${CFLAGS} ${LDFLAGS} "${c_src_files[@]}"
-	"${CXX}" -std=c++11 ${CFLAGS} ${LDFLAGS} "${src_files[@]}"
-	return
+        CFLAGS="$CFLAGS --analyze"
+        LDFLAGS=""
+        "${CXX}" -std=c11 ${CFLAGS} ${LDFLAGS} "${c_src_files[@]}"
+        "${CXX}" -std=c++11 ${CFLAGS} ${LDFLAGS} "${src_files[@]}"
+        return
     fi
 
     for srcf in "${c_src_files[@]}"; do
-	local obj="${OBJ_DIR}/"$(basename "${srcf}").o
-	[[ ! -e $obj ]] || (printf 'ERROR %s already exists' "$obj"; exit 1)
-	"${CC}" -c -std=c11 ${CFLAGS} "$srcf" -o "$obj"
-	if [[ $? -ne 0 ]]; then
-	  printf 'ERROR compiling %s\n' "$srcf"
-	  exit 1
-	fi
+        local obj="${OBJ_DIR}/"$(basename "${srcf}").o
+        [[ ! -e $obj ]] || (printf 'ERROR %s already exists' "$obj"; exit 1)
+        "${CC}" -c -std=c11 ${CFLAGS} "$srcf" -o "$obj"
+        if [[ $? -ne 0 ]]; then
+          printf 'ERROR compiling %s\n' "$srcf"
+          exit 1
+        fi
     done
 
     for srcf in "${src_files[@]}"; do
-	local obj="${OBJ_DIR}/"$(basename "${srcf}").o
-	[[ ! -e $obj ]] || (printf 'ERROR %s already exists' "$obj"; exit 1)
-	"${CXX}" -c -std=c++11 ${CFLAGS} "$srcf" -o "$obj"
-	if [[ $? -ne 0 ]]; then
-	  printf 'ERROR compiling %s\n' "$srcf"
-	  exit 1
-	fi
+        local obj="${OBJ_DIR}/"$(basename "${srcf}").o
+        [[ ! -e $obj ]] || (printf 'ERROR %s already exists' "$obj"; exit 1)
+        "${CXX}" -c -std=c++11 ${CFLAGS} "$srcf" -o "$obj"
+        if [[ $? -ne 0 ]]; then
+          printf 'ERROR compiling %s\n' "$srcf"
+          exit 1
+        fi
     done
 
     "${CXX}" -std=c++11 ${CFLAGS} ${LDFLAGS} "${OBJ_DIR}"/*.o -o "${BUILD_DIR}/main"
@@ -133,8 +133,8 @@ function compile_clang() {
 
 function compile_Darwin() {
     src_files=(${src_files[@]}
-	"${HERE}"/runtime/Darwin/*.cpp
-	"${HERE}"/runtime/open_window_with_glfw/*.cpp)
+        "${HERE}"/runtime/Darwin/*.cpp
+        "${HERE}"/runtime/open_window_with_glfw/*.cpp)
     CFLAGS="$CFLAGS -Wno-deprecated-declarations"
     CFLAGS="$CFLAGS -I${HERE}/libs/glew/include"
     CFLAGS="$CFLAGS -I${HERE}/libs/ujson4c/include"
@@ -182,18 +182,18 @@ function compile_vstudio() {
     vstudio_arch="${2:?missing architecture}"
     VS_WINDIR=$(reg_query "HKLM\\SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VC7" "$vstudio_ver")
     if [[ -z $VS_WINDIR ]]; then
-	printf 'ERROR cannot find visual studio version: %s\n' "$vstudio_ver"
-	exit 1
+        printf 'ERROR cannot find visual studio version: %s\n' "$vstudio_ver"
+        exit 1
     fi
 
 
     set_vcenv "${VS_WINDIR}" "${vstudio_arch}"
 
-    CL_CMD="cl.exe"
+    CL_CMD=${CL_CMD:="cl.exe"}
     LIB_CMD="lib.exe"
     LINK_CMD="link.exe"
 
-    CLFLAGS="$CLFLAGS //nologo //WL //W4 //WX //wd4996 //wd4068 //wd4100 //Zc:forScope"
+    CLFLAGS="$CLFLAGS //nologo //EHsc //W4 //WX //wd4996 //wd4068 //wd4100 //Zc:forScope"
     LINK_FLAGS="$LINK_FLAGS //nologo"
 
     BUILD_WINDIR="$(windows_path "${BUILD_DIR}/")"
@@ -203,19 +203,19 @@ function compile_vstudio() {
     export INCLUDE
 
     for srcf in "${src_files[@]}"; do
-	"${CL_CMD}" $CLFLAGS "$srcf" //EHsc //c //Iinclude //Fo"${OBJ_WINDIR}"\\
-	if [[ $? -ne 0 ]]; then
-	  printf 'ERROR compiling %s\n' "$srcf"
-	  exit 1
-	fi
+        "${CL_CMD}" $CLFLAGS "$srcf" //c //Iinclude //Fo"${OBJ_WINDIR}"\\
+        if [[ $? -ne 0 ]]; then
+          printf 'ERROR compiling %s\n' "$srcf"
+          exit 1
+        fi
     done
 
     for srcf in "${c_src_files[@]}"; do
-	"${CL_CMD}" $CLFLAGS "$srcf" //c //Iinclude //Fo${OBJ_WINDIR}\\
-	if [[ $? -ne 0 ]]; then
-	  printf 'ERROR compiling %s\n' "$srcf"
-	  exit 1
-	fi
+        "${CL_CMD}" $CLFLAGS "$srcf" //c //Iinclude //Fo${OBJ_WINDIR}\\
+        if [[ $? -ne 0 ]]; then
+          printf 'ERROR compiling %s\n' "$srcf"
+          exit 1
+        fi
     done
 
     "${LINK_CMD}" ${LINK_FLAGS} //OUT:${MAIN_EXE} "${OBJ_DIR}"/*.obj
@@ -226,8 +226,8 @@ function compile_NT() {
     local vstudio_arch=x86
     local native_libs_dir=${HERE}/libs/NT_${vstudio_arch}
     src_files=(${src_files[@]}
-	"${HERE}"/runtime/NT/*.cpp
-	"${HERE}"/runtime/open_window_with_glfw/*.cpp)
+        "${HERE}"/runtime/NT/*.cpp
+        "${HERE}"/runtime/open_window_with_glfw/*.cpp)
     CLFLAGS="$CLFLAGS //I""$(windows_path "${HERE}"/libs/glew/include)"
     CLFLAGS="$CLFLAGS //DGLEW_STATIC"
     CLFLAGS="$CLFLAGS //I""$(windows_path "${HERE}"/libs/ujson4c/include)"
@@ -242,7 +242,6 @@ function compile_NT() {
 
     # audio using WASAPI
     LINK_FLAGS="$LINK_FLAGS ole32.lib"
-
     compile_vstudio "12.0" "${vstudio_arch}"
 }
 
@@ -256,26 +255,32 @@ function compile_MINGW32_NT-6.2() {
     compile_NT
 }
 
+function compile_CLIENT0170() {
+#    CL_CMD="/c/Program Files (x86)/LLVM/bin/clang-cl.exe"
+#    CLFLAGS="-Qunused-arguments //fallback //D_CRT_SECURE_NO_WARNINGS"
+    compile_NT
+}
+
 function compile() {
     if [[ -z "$src_files" ]]; then
-	printf "ERROR no source files? %s\n" "${src_files}"
+        printf "ERROR no source files? %s\n" "${src_files}"
     fi
 
     for f in "${src_files[@]}"; do
-	if [[ ! -e ${f} ]] ; then
-	    printf "ERROR could not find source file %s in %s\n" "${f}" "${src_files}"
-	    exit 1
-	fi
+        if [[ ! -e ${f} ]] ; then
+            printf "ERROR could not find source file %s in %s\n" "${f}" "${src_files}"
+            exit 1
+        fi
     done
 
     if [[ "function" = $(type -t "compile_${HOSTNAME}") ]]; then
-	compile_${HOSTNAME}
-	return
+        compile_${HOSTNAME}
+        return
     fi
 
     if [[ "function" = $(type -t "compile_${OS}") ]]; then
-	compile_${OS}
-	return
+        compile_${OS}
+        return
     fi
 
     compile_default
@@ -290,7 +295,7 @@ function timed_compile() {
 
     cat=INFO
     if [[ ts_elapsed -gt ${BUILD_TIMEBOX} ]]; then
-	cat="ERROR"
+        cat="ERROR"
     fi
     printf '%s compilation took %d seconds\n' $cat $ts_elapsed
     return $RC
@@ -298,7 +303,7 @@ function timed_compile() {
 
 function show_todo() {
     grep -e 'TODO:' "${src_files[@]}" | while read match ; do
-	printf "WARNING %s\n" "$match"
+        printf "WARNING %s\n" "$match"
     done
 }
 
