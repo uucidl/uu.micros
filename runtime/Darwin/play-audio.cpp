@@ -103,19 +103,19 @@ OSStatus audio_callback(AudioDeviceID           inDevice,
 
 
 #define HW_PROPERTY_ADDRESS(key) \
-	{ key, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMaster, }
+        { key, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMaster, }
 
 #define HW_OUTPUT_PROPERTY_ADDRESS(key) \
-	{ key, kAudioDevicePropertyScopeOutput, kAudioObjectPropertyElementMaster, }
+        { key, kAudioDevicePropertyScopeOutput, kAudioObjectPropertyElementMaster, }
 
 #define OS_SUCCESS(call) ((call) == noErr)
 #define THEN_DO(expr) ((expr), 1)
 
 #define FAIL_WITH(...) (THEN_DO(printf(__VA_ARGS__)) && 0)
 #define BREAK_ON_ERROR(expr) \
-	if (!(expr)) {                                                  \
-		return;							\
-	}
+        if (!(expr)) {                                                  \
+                return;							\
+        }
 
 static AudioDeviceID mainDeviceID;
 static AudioDeviceIOProcID mainIOProcID;
@@ -265,7 +265,7 @@ extern void open_stereo48khz_stream(struct Clock* clock)
                                                    preferred_hz >= desc.mSampleRateRange.mMinimum &&
                                                    preferred_hz <= desc.mSampleRateRange.mMaximum;
                                 if (!is_variadic &&
-                                    !fabs(preferred_hz - desc.mFormat.mSampleRate) < 0.01) {
+                                    fabs(preferred_hz - desc.mFormat.mSampleRate) >= 0.01) {
                                         printf("skipping unsupported sample rate\n");
                                         continue;
                                 }
