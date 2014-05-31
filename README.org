@@ -1,12 +1,12 @@
 * Micros, a playground for demos
 
-This repository is a minimalistic playground for writing demos against OSX or Windows, 
+This repository is a minimalistic playground for writing demos against OSX or Windows,
 with an emphasis on making it possible to collaborate easily between multiple individuals.
 
 The build system is self-contained, it enforces a strict coding standard with warnings all
 activated and automatically formatting the code for you.
 
-It standardizes on C++11 and OpenGL 3.2 and targets Darwin/OSX past 10.7 (Lion) and 
+It standardizes on C++11 and OpenGL 3.2 and targets Darwin/OSX past 10.7 (Lion) and
 NT/Windows 7 and beyond.
 
 It’s all on github ready to be forked or downloaded:
@@ -76,7 +76,7 @@ All the rest is shipped within the tree
 Using our experience to define the most minimal and useful hooks to
 code a demo we come with the following:
 
-#+begin_src c++ :mkdir yes :tangle include/api.h
+#+begin_src c++ :mkdir yes :tangle include/micros/api.h
 #include <cstdint>
 
 //! initialize runtime (and start the demo)
@@ -95,8 +95,8 @@ extern void render_next_gl(uint64_t time_micros);
 //! \param left buffer of audio samples for the left channel
 //! \param right buffer of audio samples for the right channel
 extern void render_next_2chn_48khz_audio(uint64_t time_micros,
-		int const sample_count, double left[/*sample_count*/],
-		double right[/*sample_count*/]);
+                int const sample_count, double left[/*sample_count*/],
+                double right[/*sample_count*/]);
 #+end_src
 
 * Writing a new runtime
