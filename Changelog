@@ -2,6 +2,10 @@
 
 Changes in reverse order of appearance
 
+* v0.3.0:
+- use semantic versioning
+- breaking change: header file now in its header
+
 * v0.2
 - Windows: Correct query for audio streams. The previous version would
   result in no sound if the user had set a shared audio mode to
@@ -11,7 +15,6 @@ Changes in reverse order of appearance
   commands
 
 * v0.1
-
 - Multiplatform build script.
 - Usable runtime for windows (NT) and macs. Delivers 3.2 opengl contexts
   and 48khz stereo streams.
