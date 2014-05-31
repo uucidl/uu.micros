@@ -15,7 +15,7 @@
 #include <Audioclient.h>
 #include <Mmdeviceapi.h>
 
-#include <api.h>
+#include <micros/api.h>
 
 using std::vector;
 
@@ -25,14 +25,14 @@ using std::vector;
 
 #define FAIL_WITH(...) (THEN_DO(printf(__VA_ARGS__)) && 0)
 #define BREAK_ON_ERROR(expr) \
-	if (!(expr)) {                                                  \
-		return;							\
-	}
+        if (!(expr)) {                                                  \
+                return;							\
+        }
 
 #define BREAK_ON_ERROR_WITH(expr, value)					\
-	if (!(expr)) {                                                  \
-		return value;							\
-	}
+        if (!(expr)) {                                                  \
+                return value;							\
+        }
 
 struct AudioCallbackState {
         struct Clock* clock;
