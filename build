@@ -13,25 +13,55 @@ OS_RELEASE=$(uname -r)
 CPU_NAME=$(uname -m)
 OS=${OS_NAME// /_}
 
-case $1 in
-    -v)
-        VERBOSE=true
-        shift
-        ;;
-    -h)
-        printf -- "Usage: %s [-v] [<build-style>\n" "${0}"
-        printf -- "\t\t-v: verbose operation\n"
-        exit 1
-        shift
-        ;;
-esac
+while [ "$#" -gt 0 ]; do
+    case $1 in
+        -v)
+            VERBOSE=true
+            shift
+            ;;
+        --src-dir)
+            src_dir=${2:?"source directory expected"}
+            if [ ! -d "${src_dir}" ]; then
+                printf -- "source dir expected in '%s'\n" "${src_dir}"
+                exit 1
+            fi
+
+            src_dirs=("${src_dirs[@]}" ${src_dir})
+            shift
+            shift
+            ;;
+        --output-dir)
+            build_dir=${2:?"build directory expected"}
+            shift
+            shift
+            ;;
+        --help|-h)
+            printf -- "Usage: %s [-v] [--build-dir <dir>] [--output-dir <dir>]* [<build-style>\n" "${0}"
+            printf -- "\t\t-v: verbose operation\n"
+            printf -- "\t\t--src-dir: where your main cpp files are located\n"
+            printf -- "\t\t--output-dir: where to put build products\n"
+            exit 1
+            shift
+            ;;
+    esac
+done
+src_dirs=${src_dirs:-"${HERE}"/src/}
 
 BUILD_STYLE=${1:-debug}
 
 # CONFIGURATION
 
 shopt -s nullglob
-src_files=("${HERE}"/src/*.cpp "${HERE}"/runtime/*.cpp)
+printf 'INFO source dirs: %s\n' "${src_dirs[@]}"
+for dir in "${src_dirs[@]}"; do
+    src_glob="${dir}"/*.cpp
+    if [ -z "$(echo ${src_glob})" ] ; then
+        printf "ERROR no source files in %s\n" "${dir}"
+        exit 1
+    fi
+    src_files=(${src_files[@]} "${src_glob}")
+done
+src_files=(${src_files[@]} "${HERE}"/runtime/*.cpp)
 c_src_files=("${HERE}"/libs/glew/src/glew.c)
 c_src_files=(${c_src_files[@]} "${HERE}"/libs/ujson4c/src/*.c)
 shopt -u nullglob
@@ -46,7 +76,7 @@ ASTYLE=astyle
 GIT=git
 
 
-BUILD_DIR="${HERE}"/builds/${HOSTNAME}
+BUILD_DIR=${build_dir:-"${HERE}"/builds}/${HOSTNAME}
 OBJ_DIR="${BUILD_DIR}"/obj
 
 ## IMPLEMENTATION
@@ -62,10 +92,15 @@ function rebuild_dir() {
 }
 
 function code_format() {
+    all_dirs=("${src_dirs[@]}" "${HERE}/include" "${HERE}/runtime")
+    shopt -s nullglob
+    for dir in "${all_dirs[@]}"; do
+        src_globs=("${src_globs[@]}" -r "${dir}/*.*")
+    done
+    shopt -u nullglob
     astyle_output=$(
         ${ASTYLE} -n -Q --options=${HERE}/.astylerc \
-            -r "${HERE}/src/*.*" -r "${HERE}/include/*.*" -r "${HERE}/runtime/*.*" |
-            grep '^Formatted'
+                  "${src_globs[@]}" | grep '^Formatted'
     )
     if [[ -n "${astyle_output}" ]]; then
         printf "astyle returned '%s', please commit these modifications\n" "${astyle_output}"

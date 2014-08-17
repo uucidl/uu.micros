@@ -1,54 +1,20 @@
 * Micros, a playground for demos
 
-This repository is a minimalistic playground for writing demos against OSX or Windows,
-with an emphasis on making it possible to collaborate easily between multiple individuals.
+This repository is a minimalistic playground for writing demos against
+OSX or Windows, with an emphasis on making it possible to collaborate
+easily between multiple individuals.
 
-The build system is self-contained, it enforces a strict coding standard with warnings all
-activated and automatically formatting the code for you.
+The build system is self-contained, it enforces a strict coding
+standard with warnings all activated and automatically formatting the
+code for you.
 
-It standardizes on C++11 and OpenGL 3.2 and targets Darwin/OSX past 10.7 (Lion) and
-NT/Windows 7 and beyond.
+It standardizes on C++11 and OpenGL 3.2 and targets Darwin/OSX past
+10.7 (Lion) and NT/Windows 7 and beyond.
 
 It’s all on github ready to be forked or downloaded:
     http://github.com/uucidl/uu.micros
 
-Fork it, and compose your demo inside src/. Start with main.cpp to get an idea.
-
-* History
-
-I decided to write this playground when reading Alex Evans' idea about
-doing "round robin" demo projects:
-
-https://twitter.com/mmalex/status/403818676224544768
-#+begin_example
-<mmalex> Been wondering about doing an async 'chain' collab demo for years: rules: c++/GL only, 1 week work then pass it on... Repeat until deadline
-<javiercampos> @mmalex Isn't that the exact opposite to async? :-)
-<gpakosz> @mmalex on top of existing ground work demo system or from scratch?
-<mmalex> @javiercampos heh :) I guess you're right! What's the right word...
-<LiaSae> @mmalex The technical term for this in the cross-stitch word is round-robin :) Could apply as well!
-<LiaSae> @mmalex Make that "world", d'oh.
-<kamidphish> @mmalex Is that like the old C64 demos?
-<nvining> @mmalex I'm in.
-<Flawe> @mmalex very cool idea!
-<uucidl> @mmalex I always wanted to do this yet it's always a problem with coders being anal about their frameworks and build systems etc..
-<mmalex> @uucidl lowest common denominator ftw! build batch file/shellscript, minimum external deps (GL/playmp3()/gnurocket/stb_*), GO! ?
-<uucidl> @mmalex and no data file, everything generated or in-source ;)
-<mmalex>@uucidl yeah! and, drop playmp3() and replace with fill_48khz_stereo_buf_plz() callback -> synth.
-<ElMarcel> @Flawe @mmalex Awesome!
-<DeanoC>@mmalex could be fun. Different section per author or keep modifying the same bit, see where it evolves?
-<DeanoC>@mmalex One section, where each week its evolved by the next coder or each do a seperate section link to the previous? Either way sounds fun
-<keyboardjockey> @mmalex interesting. Should have each person branch off and have the next dev perform the merge, to become familiar.
-#+end_example
-
-Tangent about fabric:
-
-#+begin_example
-<mmalex> @LiaSae we could upload the result to ravelry! :)
-<‏LiaSae> @mmalex I'd love to see more fabric-like style in games (Epic Yarn, Little Big Planet, and.... there ain't much else) / demos, so why not :)
-<_psonice> @LiaSae there was zen bondage / zen bound, if that counts. A game full of soft objects/scenery instead of hard would be cool tho! @mmalex
-#+end_example
-
-* Specs
+** Specs
 
 - shell script build (clean + rebuild + test + run)
 - host system with =OpenGL 3.2= core context and 48khz stereo audio
@@ -58,17 +24,36 @@ Tangent about fabric:
 Personal comment:
 - To avoid arguing about code style, putting in the "artistic style" code formatter.
 
-* Requirements
+* Using
 
-- Git (+ on windows the msys environment that comes with it)
-find it at http://git-scm.com/
-- Bash (on windows, use git bash)
-- a C++11 compiler (gcc, clang, visual studio)
-- OSX >= 10.7 (Darwin >= 11.4) and Windows >= 7 (NT >= 6.1)
+You have two options
 
-All the rest is shipped within the tree
+** Forking uu.micros
 
-* API
+Fork uu.micros; then compose your demo in any number of .cpp files
+under [[./src/]]
+
+Use [[./src/main.cpp/]] as an inspiration
+
+** Using uu.micros as a submodule
+
+A little bit more involved; this method allows you to upgrade
+uu.micros later more easily, preserving the history of your piece.
+
+Import uu.micros as a submodule of your git repository. For example:
+
+#+BEGIN_SRC sh
+$ mkdir modules
+$ git submodule add --name uu.micros https://github.com/uucidl/uu.micros.git modules/uu.micros
+#+END_SRC
+
+Then put your .cpp files wherever you want (for example ./src/) and run:
+
+#+BEGIN_SRC sh
+modules/uu.micros/build --src-dir ./src --output-dir ./builds
+#+END_SRC
+
+** API
 :PROPERTIES:
 :mkdirp: yes
 :END:
@@ -98,6 +83,47 @@ extern void render_next_2chn_48khz_audio(uint64_t time_micros,
                 int const sample_count, double left[/*sample_count*/],
                 double right[/*sample_count*/]);
 #+end_src
+
+
+* History
+
+changes can be found in [[./ChangeLog]]
+
+** Origin 
+
+I decided to write this playground when reading Alex Evans' idea about
+doing "round robin" demo projects:
+
+https://twitter.com/mmalex/status/403818676224544768
+#+begin_example
+<mmalex> Been wondering about doing an async 'chain' collab demo for years: rules: c++/GL only, 1 week work then pass it on... Repeat until deadline
+<javiercampos> @mmalex Isn't that the exact opposite to async? :-)
+<gpakosz> @mmalex on top of existing ground work demo system or from scratch?
+<mmalex> @javiercampos heh :) I guess you're right! What's the right word...
+<LiaSae> @mmalex The technical term for this in the cross-stitch word is round-robin :) Could apply as well!
+<LiaSae> @mmalex Make that "world", d'oh.
+<kamidphish> @mmalex Is that like the old C64 demos?
+<nvining> @mmalex I'm in.
+<Flawe> @mmalex very cool idea!
+<uucidl> @mmalex I always wanted to do this yet it's always a problem with coders being anal about their frameworks and build systems etc..
+<mmalex> @uucidl lowest common denominator ftw! build batch file/shellscript, minimum external deps (GL/playmp3()/gnurocket/stb_*), GO! ?
+<uucidl> @mmalex and no data file, everything generated or in-source ;)
+<mmalex>@uucidl yeah! and, drop playmp3() and replace with fill_48khz_stereo_buf_plz() callback -> synth.
+<ElMarcel> @Flawe @mmalex Awesome!
+<DeanoC>@mmalex could be fun. Different section per author or keep modifying the same bit, see where it evolves?
+<DeanoC>@mmalex One section, where each week its evolved by the next coder or each do a seperate section link to the previous? Either way sounds fun
+<keyboardjockey> @mmalex interesting. Should have each person branch off and have the next dev perform the merge, to become familiar.
+#+end_example
+
+* Requirements
+  
+- Git (+ on windows the msys environment that comes with it)
+find it at http://git-scm.com/
+- Bash (on windows, use git bash)
+- a C++11 compiler (gcc, clang, visual studio)
+- OSX >= 10.7 (Darwin >= 11.4) and Windows >= 7 (NT >= 6.1)
+
+All the rest is shipped within the tree
 
 * Writing a new runtime
 
