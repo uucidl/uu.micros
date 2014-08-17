@@ -4,6 +4,8 @@ This repository is a minimalistic playground for writing demos against
 OSX or Windows, with an emphasis on making it possible to collaborate
 easily between multiple individuals.
 
+What it is not: a framework, a graphic/audio library.
+
 The build system is self-contained, it enforces a strict coding
 standard with warnings all activated and automatically formatting the
 code for you.
