@@ -2,6 +2,11 @@
 
 Changes in reverse order of appearance
 
+* v0.4.0:
+- breaking change: graphic render function renamed
+port by renaming render_next_gl to render_next_gl3
+- now uu.micros can be directly used as a submodule
+
 * v0.3.0:
 - use semantic versioning
 - breaking change: header file now in its header
