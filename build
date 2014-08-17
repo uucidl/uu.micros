@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 
+function realpath() {
+    path="${1}"
+    echo $(cd $(dirname "${path}") && pwd)/$(basename "${path}")
+}
+
 ## VARIABLES
-HERE=$(dirname $0)
+HERE=$(realpath $(dirname "$0"))
 HOSTNAME=$(hostname)
 OS_NAME=$(uname -s)
 OS_RELEASE=$(uname -r)
@@ -156,19 +161,32 @@ function posix_path() {
     echo $(cd "$windows_path" ; pwd -P)
 }
 
+function windows_dir() {
+    posix_dir="$1"
+    echo $(cd "$posix_dir" ; pwd -W) | sed -e 's,\/,\\,g'
+}
+
 function windows_path() {
     posix_path="$1"
-    echo $(cd "$posix_path" ; pwd -W) | sed -e 's,\/,\\,g'
+    if [ -f "${posix_path}" ]; then
+        posix_dir=$(dirname "${posix_path}")
+        basename=$(basename "${posix_path}")
+        echo $(windows_dir "${posix_dir}")'\'"${basename}"
+        return
+    fi
+    echo $(windows_dir "${posix_path}")
 }
 
 function set_vcenv() {
     VS_WINDIR="$1"
     VS_ARCH="$2"
+    WBASH=$(windows_path "${BASH}")
+    WBUILD_DIR=$(windows_path "${BUILD_DIR}")
 
     (cmd <<EOF
-bash -c set > "${BUILD_DIR}"/vcvarsall-prev.env
-"${VS_WINDIR}/vcvarsall.bat" ${VS_ARCH}
-bash -c set > "${BUILD_DIR}"/vcvarsall-after.env
+"${WBASH}" -c set > "${WBUILD_DIR}"/vcvarsall-prev.env
+"${VS_WINDIR}/vcvarsall.bat" ${VS_ARCH} > "${WBUILD_DIR}"/vcvars.log
+"${WBASH}" -c set > "${WBUILD_DIR}"/vcvarsall-after.env
 EOF
     ) > /dev/null
 
@@ -204,11 +222,12 @@ function compile_vstudio() {
     BUILD_WINDIR="$(windows_path "${BUILD_DIR}/")"
     MAIN_EXE="$BUILD_WINDIR"\\main.exe
     OBJ_WINDIR="$(windows_path "${OBJ_DIR}/")"
+    INCLUDE_WINDIR="$(windows_path "${HERE}/include")"
     export LIB
     export INCLUDE
 
     for srcf in "${src_files[@]}"; do
-        "${CL_CMD}" $CLFLAGS "$srcf" //c //Iinclude //Fo"${OBJ_WINDIR}"\\
+        "${CL_CMD}" $CLFLAGS "$srcf" //c //I"${INCLUDE_WINDIR}" //Fo"${OBJ_WINDIR}"\\
         if [[ $? -ne 0 ]]; then
           printf 'ERROR compiling %s\n' "$srcf"
           exit 1
@@ -216,7 +235,7 @@ function compile_vstudio() {
     done
 
     for srcf in "${c_src_files[@]}"; do
-        "${CL_CMD}" $CLFLAGS "$srcf" //c //Iinclude //Fo${OBJ_WINDIR}\\
+        "${CL_CMD}" $CLFLAGS "$srcf" //c //I"${INCLUDE_WINDIR}" //Fo${OBJ_WINDIR}\\
         if [[ $? -ne 0 ]]; then
           printf 'ERROR compiling %s\n' "$srcf"
           exit 1
