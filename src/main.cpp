@@ -93,7 +93,7 @@ static void test_json()
         UJFree(state);
 }
 
-extern void render_next_gl(uint64_t time_micros)
+extern void render_next_gl3(uint64_t time_micros)
 {
         static class DoOnce
         {
