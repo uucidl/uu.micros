@@ -174,6 +174,11 @@ EOF
 
     diff -u "${BUILD_DIR}"/vcvarsall-prev.env "${BUILD_DIR}"/vcvarsall-after.env | grep -e '^\+[^\+]' | cut -c 2- | grep -v -e '^\!' > "${BUILD_DIR}/vc.env"
 
+    if [ ! -s "${BUILD_DIR}/vc.env" ]; then
+        printf "ERROR failed to capture the visual studio environment\n"
+        exit 1
+    fi
+
     . ${BUILD_DIR}/vc.env
 }
 
