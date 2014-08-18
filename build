@@ -2,16 +2,16 @@
 
 function realpath() {
     path="${1}"
-    echo $(cd $(dirname "${path}") && pwd)/$(basename "${path}")
+    echo "$(cd "$(dirname "${path}")" && pwd)"/"$(basename "${path}")"
 }
 
 ## VARIABLES
-HERE=$(realpath $(dirname "$0"))
-HOSTNAME=$(hostname)
-OS_NAME=$(uname -s)
-OS_RELEASE=$(uname -r)
-CPU_NAME=$(uname -m)
-OS=${OS_NAME// /_}
+HERE="$(realpath "$(dirname "$0")")"
+HOSTNAME="$(hostname)"
+OS_NAME="$(uname -s)"
+OS_RELEASE="$(uname -r)"
+CPU_NAME="$(uname -m)"
+OS="${OS_NAME// /_}"
 
 while [ "$#" -gt 0 ]; do
     case $1 in
@@ -57,22 +57,22 @@ BUILD_STYLE=${1:-debug}
 shopt -s nullglob
 printf 'INFO source dirs: %s\n' "${src_dirs[@]}"
 for dir in "${src_dirs[@]}"; do
-    src_glob="${dir}"/*.cpp
+    src_glob="${dir}/*.cpp"
     if [ -z "$(echo ${src_glob})" ] ; then
         printf "ERROR no source files in %s\n" "${dir}"
         exit 1
     fi
-    src_files=(${src_files[@]} "${src_glob}")
+    src_files=("${src_files[@]}" ${src_glob})
 done
-src_files=(${src_files[@]} "${HERE}"/runtime/*.cpp)
+src_files=("${src_files[@]}" "${HERE}"/runtime/*.cpp)
 c_src_files=("${HERE}"/libs/glew/src/glew.c)
-c_src_files=(${c_src_files[@]} "${HERE}"/libs/ujson4c/src/*.c)
+c_src_files=("${c_src_files[@]}" "${HERE}"/libs/ujson4c/src/*.c)
 shopt -u nullglob
 
 BUILD_TIMEBOX=5
 
 ## TOOLS
-PATH="${HERE}/tools":"${HERE}/tools/${OS_NAME}":"${HERE}/tools/${OS_NAME}_${CPU_NAME}:$PATH"
+PATH="${HERE}"/tools:"${HERE}"/tools/"${OS_NAME}":"${HERE}"/tools/"${OS_NAME}"_"${CPU_NAME}":$PATH
 export PATH
 
 ASTYLE=astyle
@@ -96,13 +96,11 @@ function rebuild_dir() {
 
 function code_format() {
     all_dirs=("${src_dirs[@]}" "${HERE}/include" "${HERE}/runtime")
-    shopt -s nullglob
     for dir in "${all_dirs[@]}"; do
         src_globs=("${src_globs[@]}" -r "${dir}/*.*")
     done
-    shopt -u nullglob
     astyle_output=$(
-        ${ASTYLE} -n -Q --options=${HERE}/.astylerc \
+        ${ASTYLE} -n -Q --options="${HERE}"/.astylerc \
                   "${src_globs[@]}" | grep '^Formatted'
     )
     if [[ -n "${astyle_output}" ]]; then
@@ -119,7 +117,7 @@ function check_clean() {
 }
 
 function compile_default() {
-    printf "define a compilation function for your OS ${OS} or host ${HOSTNAME}!\n"
+    printf "define a compilation function for your OS %s or host %s!\n" "${OS}" "${HOSTNAME}"
     exit 1
 }
 
@@ -175,7 +173,7 @@ function compile_clang() {
 }
 
 function compile_Darwin() {
-    src_files=(${src_files[@]}
+    src_files=("${src_files[@]}"
         "${HERE}"/runtime/Darwin/*.cpp
         "${HERE}"/runtime/open_window_with_glfw/*.cpp)
     CFLAGS="$CFLAGS -Wno-deprecated-declarations"
@@ -196,30 +194,30 @@ function reg_query() {
 
 function posix_path() {
     windows_path="$1"
-    echo $(cd "$windows_path" ; pwd -P)
+    echo "$(cd "$windows_path" ; pwd -P)"
 }
 
 function windows_dir() {
     posix_dir="$1"
-    echo $(cd "$posix_dir" ; pwd -W) | sed -e 's,\/,\\,g'
+    echo "$(cd "$posix_dir" ; pwd -W)" | sed -e 's,\/,\\,g'
 }
 
 function windows_path() {
     posix_path="$1"
     if [ -f "${posix_path}" ]; then
-        posix_dir=$(dirname "${posix_path}")
-        basename=$(basename "${posix_path}")
-        echo $(windows_dir "${posix_dir}")'\'"${basename}"
+        posix_dir="$(dirname "${posix_path}")"
+        basename="$(basename "${posix_path}")"
+        echo "$(windows_dir "${posix_dir}")"'\'"${basename}"
         return
     fi
-    echo $(windows_dir "${posix_path}")
+    echo "$(windows_dir "${posix_path}")"
 }
 
 function set_vcenv() {
     VS_WINDIR="$1"
     VS_ARCH="$2"
-    WBASH=$(windows_path "${BASH}")
-    WBUILD_DIR=$(windows_path "${BUILD_DIR}")
+    WBASH="$(windows_path "${BASH}")"
+    WBUILD_DIR="$(windows_path "${BUILD_DIR}")"
 
     (cmd <<EOF
 "${WBASH}" -c set > "${WBUILD_DIR}"/vcvarsall-prev.env
@@ -235,7 +233,7 @@ EOF
         exit 1
     fi
 
-    . ${BUILD_DIR}/vc.env
+    . "${BUILD_DIR}"/vc.env
 }
 
 function compile_vstudio() {
@@ -251,7 +249,6 @@ function compile_vstudio() {
     set_vcenv "${VS_WINDIR}" "${vstudio_arch}"
 
     CL_CMD=${CL_CMD:="cl.exe"}
-    LIB_CMD="lib.exe"
     LINK_CMD="link.exe"
 
     CLFLAGS="$CLFLAGS //nologo //EHsc //W4 //WX //wd4996 //wd4068 //wd4100 //Zc:forScope"
@@ -273,7 +270,7 @@ function compile_vstudio() {
     done
 
     for srcf in "${c_src_files[@]}"; do
-        "${CL_CMD}" $CLFLAGS "$srcf" //c //I"${INCLUDE_WINDIR}" //Fo${OBJ_WINDIR}\\
+        "${CL_CMD}" $CLFLAGS "$srcf" //c //I"${INCLUDE_WINDIR}" //Fo"${OBJ_WINDIR}"\\
         if [[ $? -ne 0 ]]; then
           printf 'ERROR compiling %s\n' "$srcf"
           exit 1
@@ -287,7 +284,7 @@ function compile_vstudio() {
 function compile_NT() {
     local vstudio_arch=x86
     local native_libs_dir=${HERE}/libs/NT_${vstudio_arch}
-    src_files=(${src_files[@]}
+    src_files=("${src_files[@]}"
         "${HERE}"/runtime/NT/*.cpp
         "${HERE}"/runtime/open_window_with_glfw/*.cpp)
     CLFLAGS="$CLFLAGS //I""$(windows_path "${HERE}"/libs/glew/include)"
@@ -336,12 +333,12 @@ function compile() {
     done
 
     if [[ "function" = $(type -t "compile_${HOSTNAME}") ]]; then
-        compile_${HOSTNAME}
+        compile_"${HOSTNAME}"
         return
     fi
 
     if [[ "function" = $(type -t "compile_${OS}") ]]; then
-        compile_${OS}
+        compile_"${OS}"
         return
     fi
 
@@ -349,14 +346,14 @@ function compile() {
 }
 
 function timed_compile() {
-    ts_start=$(date +'%s')
+    ts_start="$(date +'%s')"
     compile
     RC=$?
     ts_end=$(date +'%s')
-    ts_elapsed=$(($ts_end - $ts_start))
-
+    ts_elapsed=$((ts_end - ts_start))
+    ts_acceptable_elapsed=$((BUILD_TIMEBOX))
     cat=INFO
-    if [[ ts_elapsed -gt ${BUILD_TIMEBOX} ]]; then
+    if [[ ts_elapsed -gt ts_acceptable_elapsed ]]; then
         cat="ERROR"
     fi
     printf '%s compilation took %d seconds\n' $cat $ts_elapsed
@@ -384,4 +381,4 @@ fi
 
 printf "INFO success\n"
 printf "INFO results:\n"
-find ${BUILD_DIR} -type f
+find "${BUILD_DIR}" -type f
