@@ -127,30 +127,30 @@ function compile_default() {
 }
 
 function compile_gxxlike() {
-    CFLAGS="-isystem ${HERE}/include $CFLAGS"
-    CFLAGS="-Wall -Wextra -Werror $CFLAGS"
-    CFLAGS="$CFLAGS -Wno-padded -Wno-unused-parameter -Wno-conversion"
+    cflags=("-isystem" "${HERE}"/include "${cflags[@]}")
+    cflags=("-Wall" "-Wextra" "-Werror" "${cflags[@]}")
+    cflags=("${cflags[@]}" "-Wno-padded" "-Wno-unused-parameter" "-Wno-conversion")
 
     if [[ -n "${VERBOSE}" ]]; then
-        CFLAGS="$CFLAGS -v"
+        cflags=("${cflags[@]}" "-v")
     fi
 
     if [[ "debug" == "${BUILD_STYLE}" ]]; then
-        CFLAGS="$CFLAGS -g"
+        cflags=("${cflags[@]}" "-g")
     fi
 
     if [[ "static-analysis" == "${BUILD_STYLE}" ]]; then
-        CFLAGS="$CFLAGS --analyze"
-        LDFLAGS=""
-        "${CXX}" -std=c11 ${CFLAGS} ${LDFLAGS} "${c_src_files[@]}"
-        "${CXX}" -std=c++11 ${CFLAGS} ${LDFLAGS} "${src_files[@]}"
+        cflags=("${cflags[@]}" "--analyze")
+        ldflags=()
+        "${CC}" -std=c11 "${cflags[@]}" "${ldflags[@]}" "${c_src_files[@]}"
+        "${CXX}" -std=c++11 "${cflags[@]}" "${ldflags[@]}" "${src_files[@]}"
         return
     fi
 
     for srcf in "${c_src_files[@]}"; do
         local obj="${OBJ_DIR}/"$(basename "${srcf}").o
         [[ ! -e $obj ]] || (printf 'ERROR %s already exists' "$obj"; exit 1)
-        "${CC}" -c -std=c11 ${CFLAGS} "$srcf" -o "$obj"
+        "${CC}" -c -std=c11 "${cflags[@]}" "$srcf" -o "$obj"
         if [[ $? -ne 0 ]]; then
           printf 'ERROR compiling %s\n' "$srcf"
           exit 1
@@ -160,18 +160,18 @@ function compile_gxxlike() {
     for srcf in "${src_files[@]}"; do
         local obj="${OBJ_DIR}/"$(basename "${srcf}").o
         [[ ! -e $obj ]] || (printf 'ERROR %s already exists' "$obj"; exit 1)
-        "${CXX}" -c -std=c++11 ${CFLAGS} "$srcf" -o "$obj"
+        "${CXX}" -c -std=c++11 "${cflags[@]}" "$srcf" -o "$obj"
         if [[ $? -ne 0 ]]; then
           printf 'ERROR compiling %s\n' "$srcf"
           exit 1
         fi
     done
 
-    "${CXX}" -std=c++11 ${CFLAGS} ${LDFLAGS} "${OBJ_DIR}"/*.o -o "${BUILD_DIR}/main"
+    "${CXX}" -std=c++11 "${cflags[@]}" "${ldflags[@]}" "${OBJ_DIR}"/*.o -o "${BUILD_DIR}/main"
 }
 
 function compile_clang() {
-    CFLAGS="$CFLAGS -stdlib=libc++"
+    cflags=("${cflags[@]}" "-stdlib=libc++")
     CXX=clang++
     CC=clang
     compile_gxxlike
@@ -181,13 +181,18 @@ function compile_Darwin() {
     src_files=("${src_files[@]}"
         "${HERE}"/runtime/Darwin/*.cpp
         "${HERE}"/runtime/open_window_with_glfw/*.cpp)
-    CFLAGS="$CFLAGS -Wno-deprecated-declarations"
-    CFLAGS="$CFLAGS -I${HERE}/libs/glew/include"
-    CFLAGS="$CFLAGS -I${HERE}/libs/ujson4c/include"
-    LDFLAGS="$LDFLAGS -framework Cocoa -framework IOKit -framework OpenGL -framework CoreAudio"
-    LDFLAGS="$LDFLAGS -L${HERE}/libs/Darwin_${CPU_NAME}"
-    CFLAGS="$CFLAGS -I${HERE}/libs"
-    LDFLAGS="$LDFLAGS -lglfw3"
+
+    cflags=("${cflags[@]}" "-Wno-deprecated-declarations")
+    cflags=("${cflags[@]}" -I"${HERE}"/libs/glew/include)
+    cflags=("${cflags[@]}" -I"${HERE}"/libs/ujson4c/include)
+    cflags=("${cflags[@]}" -I"${HERE}"/libs)
+
+    ldflags=("${ldflags[@]}"
+             -framework Cocoa -framework IOKit
+             -framework OpenGL -framework CoreAudio)
+    ldflags=("${ldflags[@]}" -L"${HERE}"/libs/Darwin_"${CPU_NAME}")
+    ldflags=("${ldflags[@]}" -lglfw3)
+
     compile_clang
 }
 
