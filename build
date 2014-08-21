@@ -261,8 +261,9 @@ function compile_vstudio() {
     CL_CMD=${CL_CMD:="cl.exe"}
     LINK_CMD="link.exe"
 
-    CLFLAGS="$CLFLAGS //nologo //EHsc //W4 //WX //wd4996 //wd4068 //wd4100 //Zc:forScope"
-    LINK_FLAGS="$LINK_FLAGS //nologo"
+    clflags=("${clflags[@]}" "//nologo" "//EHsc" "//W4" "//WX" "//wd4996" "//wd4068" "//wd4100" "//Zc:forScope")
+
+    link_flags=("${link_flags[@]}" //nologo)
 
     BUILD_WINDIR="$(windows_path "${BUILD_DIR}/")"
     MAIN_EXE="$BUILD_WINDIR"\\main.exe
@@ -272,7 +273,7 @@ function compile_vstudio() {
     export INCLUDE
 
     for srcf in "${src_files[@]}"; do
-        "${CL_CMD}" $CLFLAGS "$srcf" //c //I"${INCLUDE_WINDIR}" //Fo"${OBJ_WINDIR}"\\
+        "${CL_CMD}" "${clflags[@]}" "$srcf" //c //I"${INCLUDE_WINDIR}" //Fo"${OBJ_WINDIR}"\\
         if [[ $? -ne 0 ]]; then
           printf 'ERROR compiling %s\n' "$srcf"
           exit 1
@@ -280,14 +281,14 @@ function compile_vstudio() {
     done
 
     for srcf in "${c_src_files[@]}"; do
-        "${CL_CMD}" $CLFLAGS "$srcf" //c //I"${INCLUDE_WINDIR}" //Fo"${OBJ_WINDIR}"\\
+        "${CL_CMD}" "${clflags[@]}" "$srcf" //c //I"${INCLUDE_WINDIR}" //Fo"${OBJ_WINDIR}"\\
         if [[ $? -ne 0 ]]; then
           printf 'ERROR compiling %s\n' "$srcf"
           exit 1
         fi
     done
 
-    "${LINK_CMD}" ${LINK_FLAGS} //OUT:${MAIN_EXE} "${OBJ_DIR}"/*.obj
+    "${LINK_CMD}" "${link_flags[@]}" //OUT:"${MAIN_EXE}" "${OBJ_DIR}"/*.obj
     return
 }
 
@@ -297,20 +298,21 @@ function compile_NT() {
     src_files=("${src_files[@]}"
         "${HERE}"/runtime/NT/*.cpp
         "${HERE}"/runtime/open_window_with_glfw/*.cpp)
-    CLFLAGS="$CLFLAGS //I""$(windows_path "${HERE}"/libs/glew/include)"
-    CLFLAGS="$CLFLAGS //DGLEW_STATIC"
-    CLFLAGS="$CLFLAGS //I""$(windows_path "${HERE}"/libs/ujson4c/include)"
-    CLFLAGS="$CLFLAGS //I""$(windows_path "${HERE}/libs")"
+    clflags=("${clflags[@]}" //I"$(windows_path "${HERE}"/libs/glew/include)")
+    clflags=("${clflags[@]}" //DGLEW_STATIC)
+    clflags=("${clflags[@]}" //I"$(windows_path "${HERE}"/libs/ujson4c/include)")
+    clflags=("${clflags[@]}" //I"$(windows_path "${HERE}"/libs)")
 
-    LINK_FLAGS="opengl32.lib"
-    LINK_FLAGS="$LINK_FLAGS //LIBPATH:""$(windows_path "${native_libs_dir}")"
+    link_flags=("${link_flags[@]}" opengl32.lib)
+    link_flags=("${link_flags[@]}"
+                //LIBPATH:"$(windows_path "${native_libs_dir}")")
 
     # glfw3
-    CLFLAGS="$CLFLAGS //MD"
-    LINK_FLAGS="$LINK_FLAGS gdi32.lib user32.lib glfw3.lib"
+    clflags=("${clflags[@]}" //MD)
+    link_flags=("${link_flags[@]}" gdi32.lib user32.lib glfw3.lib)
 
     # audio using WASAPI
-    LINK_FLAGS="$LINK_FLAGS ole32.lib"
+    link_flags=("${link_flags[@]}" ole32.lib)
     compile_vstudio "12.0" "${vstudio_arch}"
 }
 
@@ -321,12 +323,6 @@ function compile_MINGW32_NT-6.1() {
 
 # windows 8 on msys with vstudio express 2013
 function compile_MINGW32_NT-6.2() {
-    compile_NT
-}
-
-function compile_CLIENT0170() {
-#    CL_CMD="/c/Program Files (x86)/LLVM/bin/clang-cl.exe"
-#    CLFLAGS="-Qunused-arguments //fallback //D_CRT_SECURE_NO_WARNINGS"
     compile_NT
 }
 
