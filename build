@@ -57,13 +57,18 @@ BUILD_STYLE=${1:-debug}
 shopt -s nullglob
 printf 'INFO source dirs: %s\n' "${src_dirs[@]}"
 for dir in "${src_dirs[@]}"; do
-    src_glob="${dir}/*.cpp"
-    if [ -z "$(echo ${src_glob})" ] ; then
+    no_file=1
+    for src_file in "${dir}"/*.cpp; do
+        src_files=("${src_files[@]}" "${src_file}")
+        no_file=""
+    done
+
+    if [ -n "${no_file}" ] ; then
         printf "ERROR no source files in %s\n" "${dir}"
         exit 1
     fi
-    src_files=("${src_files[@]}" ${src_glob})
 done
+
 src_files=("${src_files[@]}" "${HERE}"/runtime/*.cpp)
 c_src_files=("${HERE}"/libs/glew/src/glew.c)
 c_src_files=("${c_src_files[@]}" "${HERE}"/libs/ujson4c/src/*.c)
