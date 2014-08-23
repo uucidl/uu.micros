@@ -95,6 +95,13 @@ static void test_json()
 
 extern void render_next_gl3(uint64_t time_micros)
 {
+        // note: it is safe to put opengl initialization code in local
+        // static variables because the c++ standard says that static
+        // initialization happens the first time control goes through
+        // this block of code i.e. the first time the render function
+        // gets called.
+        //
+        // don't put these in static top-level variables however.
         static class DoOnce
         {
         public:
