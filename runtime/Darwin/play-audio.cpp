@@ -220,7 +220,6 @@ extern void open_stereo48khz_stream(struct Clock* clock)
                                       || FAIL_WITH("could not query starting channel")) ||
                                     (starting_channel != left_right_channels[0] &&
                                      starting_channel != left_right_channels[1])) {
-                                        printf("skipping stream starting at %d\n", starting_channel);
                                         continue;
                                 }
                         }
@@ -257,7 +256,6 @@ extern void open_stereo48khz_stream(struct Clock* clock)
                         for (i = 0; i < descriptions_n; i++) {
                                 AudioStreamRangedDescription desc = descriptions[i];
                                 if (desc.mFormat.mFormatID != kAudioFormatLinearPCM) {
-                                        printf("skipping stream not in linear pcm\n");
                                         continue;
                                 }
 
@@ -266,17 +264,13 @@ extern void open_stereo48khz_stream(struct Clock* clock)
                                                    preferred_hz <= desc.mSampleRateRange.mMaximum;
                                 if (!is_variadic &&
                                     fabs(preferred_hz - desc.mFormat.mSampleRate) >= 0.01) {
-                                        printf("skipping unsupported sample rate\n");
                                         continue;
                                 }
 
                                 if (desc.mFormat.mFormatFlags !=
                                     (kAudioFormatFlagIsFloat | kAudioFormatFlagIsPacked)) {
-                                        printf("skipping unsupported format\n");
                                         continue;
                                 }
-
-                                printf ("chose stream %d desc %d\n", streams_i, i);
 
                                 desc.mFormat.mSampleRate = preferred_hz;
                                 UInt32 property_size = sizeof desc.mFormat;
