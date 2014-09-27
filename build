@@ -54,6 +54,22 @@ BUILD_STYLE=${1:-debug}
 
 # CONFIGURATION
 
+BUILD_TIMEBOX=5
+
+## TOOLS
+PATH="${HERE}"/tools:"${HERE}"/tools/"${OS_NAME}":"${HERE}"/tools/"${OS_NAME}"_"${CPU_NAME}":$PATH
+export PATH
+
+ASTYLE=astyle
+GIT=git
+
+BUILD_DIR=${build_dir:-"${HERE}"/builds}/${HOSTNAME}
+OBJ_DIR="${BUILD_DIR}"/obj
+
+## IMPLEMENTATION
+
+src_files=()
+c_src_files=()
 shopt -s nullglob
 printf 'INFO source dirs: %s\n' "${src_dirs[@]}"
 for dir in "${src_dirs[@]}"; do
@@ -69,25 +85,11 @@ for dir in "${src_dirs[@]}"; do
     fi
 done
 
+
 src_files=("${src_files[@]}" "${HERE}"/runtime/*.cpp)
-c_src_files=("${HERE}"/libs/glew/src/glew.c)
+c_src_files=("${c_src_files[@]}" "${HERE}"/libs/glew/src/glew.c)
 c_src_files=("${c_src_files[@]}" "${HERE}"/libs/ujson4c/src/*.c)
 shopt -u nullglob
-
-BUILD_TIMEBOX=5
-
-## TOOLS
-PATH="${HERE}"/tools:"${HERE}"/tools/"${OS_NAME}":"${HERE}"/tools/"${OS_NAME}"_"${CPU_NAME}":$PATH
-export PATH
-
-ASTYLE=astyle
-GIT=git
-
-
-BUILD_DIR=${build_dir:-"${HERE}"/builds}/${HOSTNAME}
-OBJ_DIR="${BUILD_DIR}"/obj
-
-## IMPLEMENTATION
 
 function require_dir() {
     mkdir -p "${BUILD_DIR}"
