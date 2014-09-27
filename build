@@ -225,6 +225,22 @@ function compile_Darwin() {
     compile_clang
 }
 
+## Linux specific implementation
+
+function compile_Linux() {
+    src_files=("${src_files[@]}"
+        "${HERE}"/runtime/Linux/*.cpp
+        "${HERE}"/runtime/open_window_with_glfw/*.cpp)
+
+    cflags=("${cflags[@]}" $(pkg-config --cflags glfw3 gl alsa))
+    ldflags=("${ldflags[@]}" $(pkg-config --libs glfw3 gl alsa))
+    ldflags=("${ldflags[@]}" -lpthread)
+
+    compile_clang
+}
+
+## Windows specific implementation
+
 function reg_query() {
     path=$1
     value_name=$2

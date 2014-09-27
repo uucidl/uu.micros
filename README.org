@@ -4,6 +4,13 @@ This repository is a minimalistic playground for writing demos against
 OSX or Windows, with an emphasis on making it possible to collaborate
 easily between multiple individuals.
 
+To build & run its content:
+
+#+BEGIN_SRC sh
+./build
+./builds/$(hostname)/main
+#+END_SRC
+
 What it is not: a framework, a graphic/audio library.
 
 The build system is self-contained, it enforces a strict coding
@@ -27,8 +34,6 @@ Personal comment:
 - To avoid arguing about code style, putting in the "artistic style" code formatter.
 
 * Using
-
-You have two options
 
 ** Forking uu.micros
 
@@ -129,13 +134,19 @@ https://twitter.com/mmalex/status/403818676224544768
 
 * Requirements
 
+Windows/Darwin/Linux:
 - Git (+ on windows the msys environment that comes with it)
 find it at http://git-scm.com/
 - Bash (on windows, use git bash)
 - a C++11 compiler (gcc, clang, visual studio)
 - OSX >= 10.7 (Darwin >= 11.4) and Windows >= 7 (NT >= 6.1)
 
-All the rest is shipped within the tree
+Windows/Darwin:
+- All the rest is shipped within the tree
+
+Linux:
+- install astyle (artistic style)
+- install glfw3
 
 * Writing a new runtime
 
