@@ -13,6 +13,7 @@ OS_RELEASE="$(uname -r)"
 CPU_NAME="$(uname -m)"
 OS="${OS_NAME// /_}"
 
+src_dirs=()
 while [ "$#" -gt 0 ]; do
     case $1 in
         -v)
@@ -85,11 +86,29 @@ for dir in "${src_dirs[@]}"; do
     fi
 done
 
+container_dirs=("${HERE}"/libs)
 
 src_files=("${src_files[@]}" "${HERE}"/runtime/*.cpp)
-c_src_files=("${c_src_files[@]}" "${HERE}"/libs/glew/src/glew.c)
-c_src_files=("${c_src_files[@]}" "${HERE}"/libs/ujson4c/src/*.c)
+
+include_dirs=()
+for container in "${container_dirs[@]}"; do
+    for lib in "${container}"/*; do
+        for file in "${lib}"/src/*.cpp; do
+            src_files=("${src_files[@]}" "${file}")
+        done
+        for file in "${lib}"/src/*.c; do
+            c_src_files=("${c_src_files[@]}" "${file}")
+        done
+        if [ -d "${lib}"/include ]; then
+            include_dirs=("${include_dirs[@]}" "${lib}"/include)
+        fi
+    done
+    if [ -d "${lib}"/include ]; then
+        include_dirs=("${include_dirs[@]}" "${container}")
+    fi
+done
 shopt -u nullglob
+
 
 function require_dir() {
     mkdir -p "${BUILD_DIR}"
@@ -179,12 +198,9 @@ function compile_clang() {
 }
 
 function gxxlike_add_includes() {
-    for lib in "${HERE}"/libs/* ; do
-	if [ -d "${lib}"/include ]; then
-	    cflags=("${cflags[@]}" -I "${lib}"/include)
-	fi
+    for dir in "${include_dirs[@]}"; do
+	cflags=("${cflags[@]}" -I "${dir}")
     done
-    cflags=("${cflags[@]}" -I "${HERE}"/libs)
 }
 
 function compile_Darwin() {
