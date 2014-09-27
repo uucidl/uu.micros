@@ -49,8 +49,11 @@ void open_window(char const * title, bool const prefers_fullscreen)
                 window_wh[1] = static_cast<int>(window_wh[1] * 1.0 / sqrt(2.0));
         }
 
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+        auto glMajorVersion = 3;
+        auto glMinorVersion = 2;
+
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, glMajorVersion);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, glMinorVersion);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
@@ -60,7 +63,8 @@ void open_window(char const * title, bool const prefers_fullscreen)
                               prefers_fullscreen ? monitor : NULL,
                               NULL);
         if (!window) {
-                printf("could not create window\n");
+                fprintf(stderr, "could not create window for OpenGL >=%d.%d\n",
+                        glMajorVersion, glMinorVersion);
                 return;
         }
 
