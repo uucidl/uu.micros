@@ -90,6 +90,7 @@ container_dirs=("${HERE}"/libs)
 
 src_files=("${src_files[@]}" "${HERE}"/runtime/*.cpp)
 
+# automatically add any "include" subdir inside the container directories
 include_dirs=()
 for container in "${container_dirs[@]}"; do
     for lib in "${container}"/*; do
@@ -148,6 +149,11 @@ function compile_default() {
 }
 
 function compile_gxxlike() {
+    # add include directories
+    for dir in "${include_dirs[@]}"; do
+        cflags=("${cflags[@]}" -I "${dir}")
+    done
+
     cflags=("-isystem" "${HERE}"/include "${cflags[@]}")
     cflags=("-Wall" "-Wextra" "-Werror" "${cflags[@]}")
     cflags=("${cflags[@]}" "-Wno-padded" "-Wno-unused-parameter" "-Wno-conversion")
@@ -197,19 +203,12 @@ function compile_clang() {
     compile_gxxlike
 }
 
-function gxxlike_add_includes() {
-    for dir in "${include_dirs[@]}"; do
-	cflags=("${cflags[@]}" -I "${dir}")
-    done
-}
-
 function compile_Darwin() {
     src_files=("${src_files[@]}"
         "${HERE}"/runtime/Darwin/*.cpp
         "${HERE}"/runtime/open_window_with_glfw/*.cpp)
 
     cflags=("${cflags[@]}" "-Wno-deprecated-declarations")
-    gxxlike_add_includes
 
     ldflags=("${ldflags[@]}"
              -framework Cocoa -framework IOKit
@@ -290,6 +289,12 @@ function compile_vstudio() {
 
     link_flags=("${link_flags[@]}" //nologo)
 
+    # add include directories
+    for dir in "${include_dirs[@]}"; do
+        windir="$(windows_path "${dir}")"
+        clflags=("${clflags[@]}" //I"${windir}")
+    done
+
     BUILD_WINDIR="$(windows_path "${BUILD_DIR}/")"
     MAIN_EXE="$BUILD_WINDIR"\\main.exe
     OBJ_WINDIR="$(windows_path "${OBJ_DIR}/")"
@@ -323,11 +328,8 @@ function compile_NT() {
     src_files=("${src_files[@]}"
         "${HERE}"/runtime/NT/*.cpp
         "${HERE}"/runtime/open_window_with_glfw/*.cpp)
-    clflags=("${clflags[@]}" //I"$(windows_path "${HERE}"/libs/glew/include)")
-    clflags=("${clflags[@]}" //DGLEW_STATIC)
-    clflags=("${clflags[@]}" //I"$(windows_path "${HERE}"/libs/ujson4c/include)")
-    clflags=("${clflags[@]}" //I"$(windows_path "${HERE}"/libs)")
 
+    clflags=("${clflags[@]}" //DGLEW_STATIC)
     link_flags=("${link_flags[@]}" opengl32.lib)
     link_flags=("${link_flags[@]}"
                 //LIBPATH:"$(windows_path "${native_libs_dir}")")
@@ -350,6 +352,8 @@ function compile_MINGW32_NT-6.1() {
 function compile_MINGW32_NT-6.2() {
     compile_NT
 }
+
+# generic
 
 function compile() {
     if [[ -z "$src_files" ]]; then
