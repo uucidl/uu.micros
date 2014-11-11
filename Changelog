@@ -2,6 +2,11 @@
 
 Changes in reverse order of appearance
 
+* v0.4.3:
+- the build script now treats libs directory in a generic
+  manner, adding all include/ paths automatically to the
+  include path of the build.
+
 * v0.4.2:
 - fix potential infinite loop in build script
 - added GL3 documentation references in docs/
