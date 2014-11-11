@@ -176,15 +176,22 @@ function compile_clang() {
     compile_gxxlike
 }
 
+function gxxlike_add_includes() {
+    for lib in "${HERE}"/libs/* ; do
+	if [ -d "${lib}"/include ]; then
+	    cflags=("${cflags[@]}" -I "${lib}"/include)
+	fi
+    done
+    cflags=("${cflags[@]}" -I "${HERE}"/libs)
+}
+
 function compile_Darwin() {
     src_files=("${src_files[@]}"
         "${HERE}"/runtime/Darwin/*.cpp
         "${HERE}"/runtime/open_window_with_glfw/*.cpp)
 
     cflags=("${cflags[@]}" "-Wno-deprecated-declarations")
-    cflags=("${cflags[@]}" -I"${HERE}"/libs/glew/include)
-    cflags=("${cflags[@]}" -I"${HERE}"/libs/ujson4c/include)
-    cflags=("${cflags[@]}" -I"${HERE}"/libs)
+    gxxlike_add_includes
 
     ldflags=("${ldflags[@]}"
              -framework Cocoa -framework IOKit
