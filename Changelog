@@ -2,6 +2,11 @@
 
 Changes in reverse order of appearance
 
+* v0.4.2:
+- fix potential infinite loop in build script
+- added GL3 documentation references in docs/
+- build script cleanups
+
 * v0.4.0:
 - breaking change: graphic render function renamed
 port by renaming render_next_gl to render_next_gl3
