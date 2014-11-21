@@ -364,13 +364,13 @@ function compile_MINGW32_NT-6.2() {
 # generic
 
 function compile() {
-    if [[ -z "$src_files" ]]; then
+    if [[ "${#src_files[@]}" -eq 0 ]]; then
         printf "ERROR no source files? %s\n" "${src_files}"
     fi
 
     for f in "${src_files[@]}"; do
         if [[ ! -e ${f} ]] ; then
-            printf "ERROR could not find source file %s in %s\n" "${f}" "${src_files}"
+            printf "ERROR could not find source file %s\n" "${f}"
             exit 1
         fi
     done
