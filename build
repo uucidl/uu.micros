@@ -122,18 +122,26 @@ function rebuild_dir() {
 }
 
 function code_format() {
-    all_dirs=("${src_dirs[@]}" "${HERE}/include" "${HERE}/runtime")
-    for dir in "${all_dirs[@]}"; do
-        src_globs=("${src_globs[@]}" -r "${dir}/*.*")
+    local all_dirs=("${src_dirs[@]}" "${HERE}/include" "${HERE}/runtime")
+    local exts=(".cpp" ".hpp" ".c" ".h" ".fs" ".vs" ".glsl")
+    local globbed
+    local find_names=(-false)
+    for ext in "${exts[@]}"; do
+        find_names=("${find_names[@]}" -o -name "*${ext}")
     done
-    astyle_output=$(
-        ${ASTYLE} -n -Q --options="${HERE}"/.astylerc \
+
+
+    for dir in "${all_dirs[@]}"; do
+        astyle_output=$(
+            find "${dir}" \( "${find_names[@]}" \) -print0 | xargs -0 \
+            ${ASTYLE} -n -Q --options="${HERE}"/.astylerc \
                   "${src_globs[@]}" | grep '^Formatted'
-    )
-    if [[ -n "${astyle_output}" ]]; then
-        printf "astyle returned '%s', please commit these modifications\n" "${astyle_output}"
-        exit 1
-    fi
+        )
+        if [[ -n "${astyle_output}" ]]; then
+            printf "astyle returned '%s', please commit these modifications\n" "${astyle_output}"
+            exit 1
+        fi
+    done
 }
 
 function check_clean() {
