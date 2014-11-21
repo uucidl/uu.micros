@@ -9,7 +9,7 @@ extern int clock_init_base(
         uint64_t denominator)
 {
         struct Clock* clock = static_cast<struct Clock*>(allocator_alloc(allocator,
-                                      sizeof *clock));
+                              sizeof *clock));
         if (!clock) {
                 return -1;
         }

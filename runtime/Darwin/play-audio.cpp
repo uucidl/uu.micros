@@ -31,7 +31,7 @@ OSStatus audio_callback(AudioDeviceID           inDevice,
                         void*                   inClientData)
 {
         struct StereoChannelDesc const * const selected_channels =
-                static_cast<struct StereoChannelDesc*>(inClientData);
+                        static_cast<struct StereoChannelDesc*>(inClientData);
 
         struct {
                 float* buffer;
