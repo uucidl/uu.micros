@@ -293,7 +293,7 @@ function compile_vstudio() {
     CL_CMD=${CL_CMD:="cl.exe"}
     LINK_CMD="link.exe"
 
-    clflags=("${clflags[@]}" "//nologo" "//EHsc" "//W4" "//WX" "//wd4351" "//wd4996" "//wd4068" "//wd4100" "//Zc:forScope")
+    clflags=("${clflags[@]}" "//nologo" "//EHsc" "//W4" "//WX" "//wd4505" "//wd4351" "//wd4996" "//wd4068" "//wd4100" "//Zc:forScope")
 
     link_flags=("${link_flags[@]}" //nologo)
 
