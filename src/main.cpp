@@ -1,9 +1,8 @@
-#include <math.h>
-#include <stdio.h> // for printf
-
-#include <GL/glew.h>
-
 #include <micros/api.h>
+#include <micros/gl3.h>
+
+#include <cmath>
+#include <cstdio> // for printf
 
 extern void render_next_2chn_48khz_audio(uint64_t time_micros,
                 int const sample_count, double left[/*sample_count*/],
