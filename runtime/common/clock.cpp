@@ -1,6 +1,6 @@
-#include "clock.h"
-#include "allocator.h"
-#include "clock_type.h"
+#include "../clock.h"
+#include "../allocator.h"
+#include "../clock_type.h"
 
 extern int clock_init_base(
         struct Clock** clockp,

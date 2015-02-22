@@ -88,8 +88,6 @@ done
 
 container_dirs=("${HERE}"/libs)
 
-src_files=("${src_files[@]}" "${HERE}"/runtime/*.cpp)
-
 # automatically add any "include" subdir inside the container directories
 include_dirs=()
 for container in "${container_dirs[@]}"; do
@@ -212,9 +210,7 @@ function compile_clang() {
 }
 
 function compile_Darwin() {
-    src_files=("${src_files[@]}"
-        "${HERE}"/runtime/Darwin/*.cpp
-        "${HERE}"/runtime/open_window_with_glfw/*.cpp)
+    src_files=("${src_files[@]}" "${HERE}"/runtime/darwin_runtime.cpp)
 
     cflags=("${cflags[@]}" "-Wno-deprecated-declarations")
 
@@ -333,9 +329,7 @@ function compile_vstudio() {
 function compile_NT() {
     local vstudio_arch=x86
     local native_libs_dir=${HERE}/libs/NT_${vstudio_arch}
-    src_files=("${src_files[@]}"
-        "${HERE}"/runtime/NT/*.cpp
-        "${HERE}"/runtime/open_window_with_glfw/*.cpp)
+    src_files=("${src_files[@]}" "${HERE}"/runtime/nt_runtime.cpp)
 
     clflags=("${clflags[@]}" //DGLEW_STATIC)
     link_flags=("${link_flags[@]}" opengl32.lib)
