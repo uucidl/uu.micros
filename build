@@ -160,6 +160,7 @@ function compile_gxxlike() {
         cflags=("${cflags[@]}" -I "${dir}")
     done
 
+    cflags=("-fno-rtti" "${cflags[@]}")
     cflags=("-isystem" "${HERE}"/include "${cflags[@]}")
     cflags=("-Wall" "-Wextra" "-Werror" "${cflags[@]}")
     cflags=("${cflags[@]}" "-Wno-padded" "-Wno-unused-parameter" "-Wno-conversion")
