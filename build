@@ -299,6 +299,11 @@ function compile_vstudio() {
 
     link_flags=("${link_flags[@]}" -nologo)
 
+    if [[ "debug" == "${BUILD_STYLE}" ]]; then
+        clflags=("${clflags[@]}" "-Od")
+        link_flags=("${link_flags[@]}" "-Debug")
+    fi
+
     # add include directories
     for dir in "${include_dirs[@]}"; do
         windir="$(windows_path "${dir}")"
