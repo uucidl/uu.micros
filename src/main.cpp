@@ -1,21 +1,8 @@
-#include <math.h>
-#include <stdio.h> // for printf
-
-#include <GL/glew.h>
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wmissing-field-initializers"
-
-#include "stb_image.c"
-#include "stb_image_write.h"
-#include "stb_perlin.h"
-#include "stb_truetype.h"
-#include "ujdecode.h"
-
-#pragma clang diagnostic pop
-
 #include <micros/api.h>
+#include <micros/gl3.h>
 
+#include <cmath>
+#include <cstdio> // for printf
 
 extern void render_next_2chn_48khz_audio(uint64_t time_micros,
                 int const sample_count, double left[/*sample_count*/],
@@ -52,47 +39,6 @@ extern void render_next_2chn_48khz_audio(uint64_t time_micros,
         }
 }
 
-static void test_json()
-{
-        UJObject obj;
-        void *state;
-        const char input[] =
-                "{\"name\": \"John Doe\", \"age\": 31, \"number\": 1337.37, \"negative\": -9223372036854775808, \"address\": { \"city\": \"Uppsala\", \"population\": 9223372036854775807 } }";
-        size_t cbInput = sizeof(input) - 1;
-
-        const wchar_t *personKeys[] = { L"name", L"age", L"number", L"negative", L"address"};
-        UJObject oName, oAge, oNumber, oNegative, oAddress;
-
-        obj = UJDecode(input, cbInput, NULL, &state);
-
-        if (obj &&
-            UJObjectUnpack
-            (obj, 5, "SNNNO",
-             personKeys, &oName, &oAge, &oNumber, &oNegative, &oAddress) == 5) {
-                const wchar_t *addressKeys[] = { L"city", L"population" };
-                UJObject oCity, oPopulation;
-
-                const wchar_t *name = UJReadString(oName, NULL);
-                int age = UJNumericInt(oAge);
-                double number = UJNumericFloat(oNumber);
-                long long negative = UJNumericLongLong(oNegative);
-
-                if (UJObjectUnpack(oAddress, 2, "SN", addressKeys, &oCity,
-                                   &oPopulation) == 2) {
-                        const wchar_t *city;
-                        long long population;
-                        city = UJReadString(oCity, NULL);
-                        population = UJNumericLongLong(oPopulation);
-                }
-                printf("name: %ls, age: %d, number: %f, negative: %lld\n", name, age, number,
-                       negative);
-        } else {
-                printf("could not parse JSON stream\n");
-        }
-
-        UJFree(state);
-}
-
 extern void render_next_gl3(uint64_t time_micros)
 {
         // note: it is safe to put opengl initialization code in local
@@ -108,7 +54,6 @@ extern void render_next_gl3(uint64_t time_micros)
                 DoOnce()
                 {
                         printf("OpenGL version %s\n", glGetString(GL_VERSION));
-                        test_json();
                 }
         } init;
 

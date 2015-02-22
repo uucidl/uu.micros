@@ -20,16 +20,16 @@ static void std_free(struct Allocator* self, void* ptr)
 
 static struct Allocator std_allocator = { std_alloc, std_free };
 
-static struct Clock* clock;
+static struct Clock* cpu_clock;
 
 void runtime_init ()
 {
-        clock_init(&clock, &std_allocator);
-        open_stereo48khz_stream(clock);
+        clock_init(&cpu_clock, &std_allocator);
+        open_stereo48khz_stream(cpu_clock);
         open_window("main", false);
 }
 
 uint64_t now_micros()
 {
-        return clock_microseconds(clock);
+        return clock_microseconds(cpu_clock);
 }

@@ -1,5 +1,5 @@
-#include "allocator_type.h"
-#include "allocator.h"
+#include "../allocator_type.h"
+#include "../allocator.h"
 
 void* allocator_alloc(struct Allocator* allocator, size_t size)
 {

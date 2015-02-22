@@ -88,8 +88,6 @@ done
 
 container_dirs=("${HERE}"/libs)
 
-src_files=("${src_files[@]}" "${HERE}"/runtime/*.cpp)
-
 # automatically add any "include" subdir inside the container directories
 include_dirs=()
 for container in "${container_dirs[@]}"; do
@@ -162,6 +160,7 @@ function compile_gxxlike() {
         cflags=("${cflags[@]}" -I "${dir}")
     done
 
+    cflags=("-fno-rtti" "${cflags[@]}")
     cflags=("-isystem" "${HERE}"/include "${cflags[@]}")
     cflags=("-Wall" "-Wextra" "-Werror" "${cflags[@]}")
     cflags=("${cflags[@]}" "-Wno-padded" "-Wno-unused-parameter" "-Wno-conversion")
@@ -212,9 +211,7 @@ function compile_clang() {
 }
 
 function compile_Darwin() {
-    src_files=("${src_files[@]}"
-        "${HERE}"/runtime/Darwin/*.cpp
-        "${HERE}"/runtime/open_window_with_glfw/*.cpp)
+    src_files=("${src_files[@]}" "${HERE}"/runtime/darwin_runtime.cpp)
 
     cflags=("${cflags[@]}" "-Wno-deprecated-declarations")
 
@@ -293,14 +290,19 @@ function compile_vstudio() {
     CL_CMD=${CL_CMD:="cl.exe"}
     LINK_CMD="link.exe"
 
-    clflags=("${clflags[@]}" "//nologo" "//EHsc" "//W4" "//WX" "//wd4505" "//wd4351" "//wd4996" "//wd4068" "//wd4100" "//Zc:forScope")
+    clflags=("${clflags[@]}" "-nologo")
+    clflags=("${clflags[@]}" "-EHsc")
+    clflags=("${clflags[@]}" "-W4" "-WX" "-wd4068" "-wd4100" "-wd4351" "-wd4505" "-wd4996")
+    clflags=("${clflags[@]}" "-Zc:forScope" "-Z7")
+    clflags=("${clflags[@]}" "-Oi" "-GR-" "-Gm-")
+    clflags=("${clflags[@]}" "-fp:fast")
 
-    link_flags=("${link_flags[@]}" //nologo)
+    link_flags=("${link_flags[@]}" -nologo)
 
     # add include directories
     for dir in "${include_dirs[@]}"; do
         windir="$(windows_path "${dir}")"
-        clflags=("${clflags[@]}" //I"${windir}")
+        clflags=("${clflags[@]}" -I"${windir}")
     done
 
     BUILD_WINDIR="$(windows_path "${BUILD_DIR}/")"
@@ -311,7 +313,7 @@ function compile_vstudio() {
     export INCLUDE
 
     for srcf in "${src_files[@]}"; do
-        "${CL_CMD}" "${clflags[@]}" "$srcf" //c //I"${INCLUDE_WINDIR}" //Fo"${OBJ_WINDIR}"\\
+        "${CL_CMD}" "${clflags[@]}" "$srcf" -c -I"${INCLUDE_WINDIR}" -Fo"${OBJ_WINDIR}"\\
         if [[ $? -ne 0 ]]; then
           printf 'ERROR compiling %s\n' "$srcf"
           exit 1
@@ -319,31 +321,29 @@ function compile_vstudio() {
     done
 
     for srcf in "${c_src_files[@]}"; do
-        "${CL_CMD}" "${clflags[@]}" "$srcf" //c //I"${INCLUDE_WINDIR}" //Fo"${OBJ_WINDIR}"\\
+        "${CL_CMD}" "${clflags[@]}" "$srcf" -c -I"${INCLUDE_WINDIR}" -Fo"${OBJ_WINDIR}"\\
         if [[ $? -ne 0 ]]; then
           printf 'ERROR compiling %s\n' "$srcf"
           exit 1
         fi
     done
 
-    "${LINK_CMD}" "${link_flags[@]}" //OUT:"${MAIN_EXE}" "${OBJ_DIR}"/*.obj
+    "${LINK_CMD}" "${link_flags[@]}" -OUT:"${MAIN_EXE}" "${OBJ_DIR}"/*.obj
     return
 }
 
 function compile_NT() {
     local vstudio_arch=x86
     local native_libs_dir=${HERE}/libs/NT_${vstudio_arch}
-    src_files=("${src_files[@]}"
-        "${HERE}"/runtime/NT/*.cpp
-        "${HERE}"/runtime/open_window_with_glfw/*.cpp)
+    src_files=("${src_files[@]}" "${HERE}"/runtime/nt_runtime.cpp)
 
-    clflags=("${clflags[@]}" //DGLEW_STATIC)
+    clflags=("${clflags[@]}" -DGLEW_STATIC)
     link_flags=("${link_flags[@]}" opengl32.lib)
     link_flags=("${link_flags[@]}"
-                //LIBPATH:"$(windows_path "${native_libs_dir}")")
+                -LIBPATH:"$(windows_path "${native_libs_dir}")")
 
     # glfw3
-    clflags=("${clflags[@]}" //MD)
+    clflags=("${clflags[@]}" -MD)
     link_flags=("${link_flags[@]}" gdi32.lib user32.lib glfw3.lib)
 
     # audio using WASAPI

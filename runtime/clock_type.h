@@ -1,3 +1,5 @@
+#pragma once
+
 struct Allocator;
 
 struct Clock {
