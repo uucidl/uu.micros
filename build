@@ -293,7 +293,9 @@ function compile_vstudio() {
     clflags=("${clflags[@]}" "-nologo")
     clflags=("${clflags[@]}" "-EHsc")
     clflags=("${clflags[@]}" "-W4" "-WX" "-wd4068" "-wd4100" "-wd4351" "-wd4505" "-wd4996")
-    clflags=("${clflags[@]}" "-Zc:forScope")
+    clflags=("${clflags[@]}" "-Zc:forScope" "-Z7")
+    clflags=("${clflags[@]}" "-Oi" "-GR-" "-Gm-")
+    clflags=("${clflags[@]}" "-fp:fast")
 
     link_flags=("${link_flags[@]}" -nologo)
 
