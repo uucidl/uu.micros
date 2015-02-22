@@ -1,5 +1,5 @@
 #include <micros/api.h>
-#include <micros/gl3.h>
+#include <micros/gl2.h>
 
 #include <cmath>
 #include <cstdio> // for printf
@@ -39,7 +39,7 @@ extern void render_next_2chn_48khz_audio(uint64_t time_micros,
         }
 }
 
-extern void render_next_gl3(uint64_t time_micros)
+extern void render_next_gl2(uint64_t time_micros)
 {
         // note: it is safe to put opengl initialization code in local
         // static variables because the c++ standard says that static

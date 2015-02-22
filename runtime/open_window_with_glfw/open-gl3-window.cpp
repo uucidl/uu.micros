@@ -49,13 +49,11 @@ void open_window(char const * title, bool const prefers_fullscreen)
                 window_wh[1] = static_cast<int>(window_wh[1] * 1.0 / sqrt(2.0));
         }
 
-        auto glMajorVersion = 3;
-        auto glMinorVersion = 2;
+        auto glMajorVersion = 2;
+        auto glMinorVersion = 1;
 
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, glMajorVersion);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, glMinorVersion);
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
         glfwWindowHint(GLFW_SAMPLES, 4);
         GLFWwindow* window = glfwCreateWindow

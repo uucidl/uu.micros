@@ -10,8 +10,8 @@ The build system is self-contained, it enforces a strict coding
 standard with warnings all activated and automatically formatting the
 code for you.
 
-It standardizes on C++11 and OpenGL 3.2 and targets Darwin/OSX past
-10.7 (Lion) and NT/Windows 7 and beyond.
+This branch standardizes on C++11 and OpenGL 2.1 and targets
+Darwin/OSX past 10.7 (Lion) and NT/Windows 7 and beyond.
 
 It’s all on github ready to be forked or downloaded:
     http://github.com/uucidl/uu.micros
@@ -19,7 +19,7 @@ It’s all on github ready to be forked or downloaded:
 ** Specs
 
 - shell script build (clean + rebuild + test + run)
-- host system with =OpenGL 3.2= core context and 48khz stereo audio
+- host system with =OpenGL 2.1= core context and 48khz stereo audio
 - source only libraries accepted
 - =C++11= only supported
 
@@ -79,7 +79,7 @@ code a demo we come with the following:
    *
    * @param time_micros scheduling time for the frame
    */
-  extern void render_next_gl3(uint64_t time_micros);
+  extern void render_next_gl2(uint64_t time_micros);
 
   /**
    * entry point: called for each new audio frame.
