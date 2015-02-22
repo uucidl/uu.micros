@@ -169,12 +169,3 @@ The build script can be edited to define compilation flags per machine
 or platform (for custom/weird environments)
 
 Simply add a new function to add your per machine customization.
-
-* Ideas
-
-- in lib you will find all stb libs for image loading, truetype/vorbis
-  support at least. All the rest can come from demo or c++11 or any
-  other source available lib that can be put in the tree.
-
-- a base runtime will be provided for mac/linux/pc (based on the most
-  basic lib available)

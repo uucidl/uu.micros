@@ -2,6 +2,10 @@
 
 Changes in reverse order of appearance
 
+* v0.5.0:
+- removed ultrajson and the stb libraries (they are easy to include yourself)
+- micros/gl3.h: added header to help you import the gl library
+- improve build times
 * v0.4.3:
 - the build script now treats libs directory in a generic
   manner, adding all include/ paths automatically to the
