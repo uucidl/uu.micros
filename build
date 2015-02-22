@@ -79,6 +79,10 @@ for dir in "${src_dirs[@]}"; do
         src_files=("${src_files[@]}" "${src_file}")
         no_file=""
     done
+    for src_file in "${dir}"/*.c; do
+        c_src_files=("${c_src_files[@]}" "${src_file}")
+        no_file=""
+    done
 
     if [ -n "${no_file}" ] ; then
         printf "ERROR no source files in %s\n" "${dir}"
