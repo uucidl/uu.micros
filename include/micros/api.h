@@ -1,4 +1,3 @@
-
 #include <cstdint>
 
 /// initialize runtime (and start the demo)
@@ -14,7 +13,7 @@ extern uint64_t now_micros();
  *
  * @param time_micros scheduling time for the frame
  */
-extern void render_next_gl3(uint64_t time_micros);
+extern void render_next_gl2(uint64_t time_micros);
 
 /**
  * entry point: called for each new audio frame.
