@@ -89,7 +89,8 @@ void open_window(char const * title, bool const prefers_fullscreen)
                 glViewport(0, 0, width, height);
 
                 try {
-                        render_next_gl3(now_micros());
+                        // TODO(uucidl) square pixels are assumed here
+                        render_next_gl3(now_micros(), { static_cast<uint32_t> (width), static_cast<uint32_t> (height) });
                 } catch (std::exception& e) {
                         fprintf(stderr, "caught exception: '%s', exiting.\n", e.what());
                         break;

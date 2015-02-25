@@ -1,3 +1,4 @@
+#pragma once
 
 #include <cstdint>
 
@@ -7,6 +8,13 @@ extern void runtime_init();
 /// current time in microseconds
 extern uint64_t now_micros();
 
+/// information about a display
+struct Display {
+        // the dimensions of the display's framebuffer in pixels
+        uint32_t framebuffer_width_px;
+        uint32_t framebuffer_height_px;
+};
+
 /**
  * entry point: called for each new video frame.
  *
@@ -14,7 +22,8 @@ extern uint64_t now_micros();
  *
  * @param time_micros scheduling time for the frame
  */
-extern void render_next_gl3(uint64_t time_micros);
+extern void render_next_gl3(uint64_t time_micros,
+                            struct Display display);
 
 /**
  * entry point: called for each new audio frame.
