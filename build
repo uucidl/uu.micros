@@ -166,7 +166,7 @@ function compile_gxxlike() {
 
     cflags=("-fno-rtti" "${cflags[@]}")
     cflags=("-isystem" "${HERE}"/include "${cflags[@]}")
-    cflags=("-Wall" "-Wextra" "-Werror" "${cflags[@]}")
+    cflags=("-Wall" "-Wextra" "-Wshorten-64-to-32" "-Werror" "${cflags[@]}")
     cflags=("${cflags[@]}" "-Wno-padded" "-Wno-unused-parameter" "-Wno-conversion")
 
     if [[ -n "${VERBOSE}" ]]; then
