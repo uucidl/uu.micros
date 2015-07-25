@@ -76,24 +76,23 @@ static DWORD __stdcall audio_callback(LPVOID param)
         BREAK_ON_ERROR_WITH(OS_SUCCESS(hr)
                             || FAIL_WITH("could not get audio clock\n"), 1);
 
-        UINT32 frame_count;
+        UINT32 buffer_frame_count;
         hr = state->audio_client->GetBufferSize(
-                     &frame_count);
+                     &buffer_frame_count);
         BREAK_ON_ERROR_WITH(OS_SUCCESS(hr)
                             || FAIL_WITH("could not get total frame count\n"), 1);
 
         vector<double> left_client_buffer;
         vector<double> right_client_buffer;
 
-        left_client_buffer.reserve(frame_count);
-        right_client_buffer.reserve(frame_count);
+        left_client_buffer.reserve(buffer_frame_count);
+        right_client_buffer.reserve(buffer_frame_count);
 
         UINT32 iterations = 0;
         UINT32 rendered_frame_count = 0;
         for(;;) {
                 iterations++;
                 WaitForSingleObject(state->refill_event, INFINITE);
-                HRESULT hr;
                 UINT32 frame_end;
                 hr = state->audio_client->GetBufferSize(
                              &frame_end);
@@ -123,7 +122,7 @@ static DWORD __stdcall audio_callback(LPVOID param)
                 struct {
                         float* buffer;
                         int stride;
-                        int frame_count;
+                        uint32_t frame_count;
                 } output[2] = {
                         { (float*) buffer, 2, frame_count },
                         { (float*) buffer + 1, 2, frame_count },

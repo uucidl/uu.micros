@@ -343,6 +343,8 @@ function compile_vstudio() {
 
 function compile_NT() {
     local vstudio_arch=x86
+    local vstudio_version=14.0
+
     local native_libs_dir=${HERE}/libs/NT_${vstudio_arch}
     src_files=("${src_files[@]}" "${HERE}"/runtime/nt_runtime.cpp)
 
@@ -354,10 +356,14 @@ function compile_NT() {
     # glfw3
     clflags=("${clflags[@]}" -MD)
     link_flags=("${link_flags[@]}" gdi32.lib user32.lib glfw3.lib)
+    if [[ "${vstudio_version}" = "14.0" ]]; then
+        link_flags=("${link_flags[@]}" legacy_stdio_definitions.lib)
+    fi
+
 
     # audio using WASAPI
     link_flags=("${link_flags[@]}" ole32.lib)
-    compile_vstudio "12.0" "${vstudio_arch}"
+    compile_vstudio "${vstudio_version}" "${vstudio_arch}"
 }
 
 # windows 7 on msys with vstudio express 2013

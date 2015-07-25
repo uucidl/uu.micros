@@ -132,7 +132,7 @@ https://twitter.com/mmalex/status/403818676224544768
 - Git (+ on windows the msys environment that comes with it)
 find it at http://git-scm.com/
 - Bash (on windows, use git bash)
-- a C++11 compiler (gcc, clang, visual studio)
+- a C++11 compiler (gcc, clang, visual studio 2015)
 - OSX >= 10.7 (Darwin >= 11.4) and Windows >= 7 (NT >= 6.1)
 
 All the rest is shipped within the tree
