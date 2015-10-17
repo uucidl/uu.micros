@@ -218,6 +218,7 @@ function compile_Darwin() {
     src_files=("${src_files[@]}" "${HERE}"/runtime/darwin_runtime.cpp)
 
     cflags=("${cflags[@]}" "-Wno-deprecated-declarations")
+    cflags=("${cflags[@]}" -DGLEW_NO_GLU)
 
     ldflags=("${ldflags[@]}"
              -framework Cocoa -framework IOKit
@@ -346,7 +347,7 @@ function compile_NT() {
     local native_libs_dir=${HERE}/libs/NT_${vstudio_arch}
     src_files=("${src_files[@]}" "${HERE}"/runtime/nt_runtime.cpp)
 
-    clflags=("${clflags[@]}" -DGLEW_STATIC)
+    clflags=("${clflags[@]}" -DGLEW_STATIC -DGLEW_NO_GLU)
     link_flags=("${link_flags[@]}" opengl32.lib)
     link_flags=("${link_flags[@]}"
                 -LIBPATH:"$(windows_path "${native_libs_dir}")")
