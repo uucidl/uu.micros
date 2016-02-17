@@ -1,6 +1,6 @@
 #include <stdlib.h> // malloc, free
 
-#include <micros/api.h>
+#include "../../include/micros/api.h"
 
 #include "../allocator_type.h"
 #include "../clock.h"

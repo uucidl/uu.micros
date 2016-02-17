@@ -5,7 +5,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <micros/api.h>
+#include "../../include/micros/api.h"
 
 static void do_keyboard (GLFWwindow* window, int key, int scancode,
                          int action, int mods)

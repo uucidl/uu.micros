@@ -12,7 +12,7 @@
 #include <CoreAudio/AudioHardware.h>
 #include <CoreAudio/CoreAudioTypes.h>
 
-#include <micros/api.h>
+#include "../../include/micros/api.h"
 
 #include "../clock.h"
 
