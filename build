@@ -176,6 +176,9 @@ function compile_gxxlike() {
     if [[ "debug" == "${BUILD_STYLE}" ]]; then
         cflags=("${cflags[@]}" "-g")
     fi
+    if [[ "opt" == "${BUILD_STYLE}" ]]; then
+	cxxflags=("${cxxflags[@]}" "-O3")
+    fi
 
     if [[ "static-analysis" == "${BUILD_STYLE}" ]]; then
         cflags=("${cflags[@]}" "--analyze")
