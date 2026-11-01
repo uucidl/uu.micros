@@ -122,8 +122,8 @@ static DWORD __stdcall audio_callback(LPVOID param)
 
                 struct {
                         float* buffer;
-                        int stride;
-                        int frame_count;
+                        uint32_t stride;
+                        uint32_t frame_count;
                 } output[2] = {
                         { (float*) buffer, 2, frame_count },
                         { (float*) buffer + 1, 2, frame_count },
