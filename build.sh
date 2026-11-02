@@ -215,7 +215,7 @@ function compile_clang() {
 }
 
 function compile_Darwin() {
-    src_files=("${src_files[@]}" "${HERE}"/runtime/darwin_runtime.cpp)
+    src_files=("${src_files[@]}" "${HERE}"/runtime/runtime.cpp)
 
     cflags=("${cflags[@]}" "-Wno-deprecated-declarations")
 
@@ -344,7 +344,8 @@ function compile_vstudio() {
 function compile_NT() {
     local vstudio_arch=x86
     local native_libs_dir=${HERE}/libs/NT_${vstudio_arch}
-    src_files=("${src_files[@]}" "${HERE}"/runtime/nt_runtime.cpp)
+    
+    src_files=("${src_files[@]}" "${HERE}"/runtime/runtime.cpp)
 
     clflags=("${clflags[@]}" -DGLEW_STATIC)
     link_flags=("${link_flags[@]}" opengl32.lib)
