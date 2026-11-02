@@ -181,7 +181,7 @@ function compile_gxxlike() {
         cflags=("${cflags[@]}" "--analyze")
         ldflags=()
         "${CC}" -std=c11 "${cflags[@]}" "${ldflags[@]}" "${c_src_files[@]}"
-        "${CXX}" -std=c++11 "${cflags[@]}" "${cxxflags[@]}" "${ldflags[@]}" "${src_files[@]}"
+        "${CXX}" -std=c++17 "${cflags[@]}" "${cxxflags[@]}" "${ldflags[@]}" "${src_files[@]}"
         return
     fi
 
@@ -198,14 +198,14 @@ function compile_gxxlike() {
     for srcf in "${src_files[@]}"; do
         local obj="${OBJ_DIR}/"$(basename "${srcf}").o
         [[ ! -e $obj ]] || (printf 'ERROR %s already exists' "$obj"; exit 1)
-        "${CXX}" -c -std=c++11 "${cflags[@]}" "${cxxflags[@]}" "$srcf" -o "$obj"
+        "${CXX}" -c -std=c++17 "${cflags[@]}" "${cxxflags[@]}" "$srcf" -o "$obj"
         if [[ $? -ne 0 ]]; then
           printf 'ERROR compiling %s\n' "$srcf"
           exit 1
         fi
     done
 
-    "${CXX}" -std=c++11 "${cflags[@]}" "${cxxflags[@]}" "${ldflags[@]}" "${OBJ_DIR}"/*.o -o "${BUILD_DIR}/main"
+    "${CXX}" -std=c++17 "${cflags[@]}" "${cxxflags[@]}" "${ldflags[@]}" "${OBJ_DIR}"/*.o -o "${BUILD_DIR}/main"
 }
 
 function compile_clang() {
