@@ -4,11 +4,20 @@
 #include <cmath>
 #include <cstdio> // for printf
 
+static struct {
+  bool shown_video_frame;
+} globals;
+
 extern void render_next_2chn_48khz_audio(uint64_t time_micros,
                 int const sample_count, double left[/*sample_count*/],
                 double right[/*sample_count*/])
 {
-        static double sc_phase = 0.0;
+  if (!globals.shown_video_frame) {
+    for (int i = 0, n = sample_count; i < n; i++) {
+      left[i] = right[i] = 0.0;
+    }
+  } else {
+          static double sc_phase = 0.0;
         static double l_phase = 0.0;
         static double r_phase = 0.0;
         double pert = cos(6.30 * time_micros / 1e6 / 11.0) + sin(
@@ -37,6 +46,7 @@ extern void render_next_2chn_48khz_audio(uint64_t time_micros,
                 r_phase += (1.0f + 0.12f * sincos[1]) * drone_hz * 6.30 / 48000.0;
                 sc_phase += 6.30 / 48000.0 / 7.0;
         }
+  }
 }
 
 extern void render_next_gl3(uint64_t time_micros,
@@ -68,6 +78,8 @@ extern void render_next_gl3(uint64_t time_micros,
         };
         glClearColor (argb[1], argb[2], argb[3], argb[0]);
         glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	globals.shown_video_frame = true;
 }
 
 int main (int argc, char** argv)
