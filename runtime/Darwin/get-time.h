@@ -1,3 +1,5 @@
+#if defined(__APPLE__) && defined(__MACH__)
+
 #include <mach/mach_time.h>
 #include <string.h>
 
@@ -20,3 +22,5 @@ extern uint64_t clock_ticks(struct Clock const* const clock)
 
         return mach_absolute_time();
 }
+
+#endif

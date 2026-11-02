@@ -7,16 +7,16 @@
 
 #include <micros/api.h>
 
-static void do_keyboard (GLFWwindow* window, int key, int scancode,
-                         int action, int mods)
+static void do_keyboard (GLFWwindow* window, int key, int /*scancode*/,
+                         int /*action*/, int /*mods*/)
 {
         if (GLFW_KEY_ESCAPE == key) {
                 glfwSetWindowShouldClose(window, GL_TRUE);
         }
 }
 
-static void do_mouse_button (GLFWwindow* window, int button, int action,
-                             int mods)
+static void do_mouse_button (GLFWwindow* window, int button, int /*action*/,
+                             int /*mods*/)
 {
         if (GLFW_MOUSE_BUTTON_2 == button) {
                 glfwSetWindowShouldClose(window, GL_TRUE);

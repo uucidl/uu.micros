@@ -5,8 +5,9 @@
 #include "../allocator_type.h"
 #include "../clock.h"
 
-#include "window.h"
-#include "play-audio.h"
+extern void open_stereo48khz_stream(struct Clock* clock);
+extern void open_window(char const* title, bool prefers_fullscreen);
+
 
 static void* std_alloc(struct Allocator* self, size_t size)
 {

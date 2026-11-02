@@ -1,6 +1,0 @@
-#include "Darwin/get-time.cpp"
-#include "Darwin/play-audio.cpp"
-#include "Darwin/runtime.cpp"
-#include "common/allocator.cpp"
-#include "common/clock.cpp"
-#include "open_window_with_glfw/open-window.cpp"

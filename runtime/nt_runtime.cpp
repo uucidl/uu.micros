@@ -1,6 +1,0 @@
-#include "NT/clock-windows.cpp"
-#include "NT/play-audio.cpp"
-#include "NT/runtime.cpp"
-#include "common/allocator.cpp"
-#include "common/clock.cpp"
-#include "open_window_with_glfw/open-window.cpp"
