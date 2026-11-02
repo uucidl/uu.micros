@@ -168,6 +168,7 @@ function compile_gxxlike() {
     cflags=("-isystem" "${HERE}"/include "${cflags[@]}")
     cflags=("-Wall" "-Wextra" "-Wshorten-64-to-32" "-Werror" "${cflags[@]}")
     cflags=("${cflags[@]}" "-Wno-padded" "-Wno-unused-parameter" "-Wno-conversion")
+    cflags=("${cflags[@]}" "-Wno-cast-function-type-mismatch")
 
     if [[ -n "${VERBOSE}" ]]; then
         cflags=("${cflags[@]}" "-v")
@@ -348,17 +349,29 @@ function compile_NT() {
     src_files=("${src_files[@]}" "${HERE}"/runtime/runtime.cpp)
 
     clflags=("${clflags[@]}" -DGLEW_STATIC)
+    cflags=("${cflags[@]}" -DGLEW_STATIC)
+    cxxflags=("${cxxflags[@]}" -DGLEW_STATIC)
     link_flags=("${link_flags[@]}" opengl32.lib)
+    ldflags=(${ldflags[@]} -lopengl32)
+
+    ldflags=(${ldflags[@]} -L${native_libs_dir})
     link_flags=("${link_flags[@]}"
                 -LIBPATH:"$(windows_path "${native_libs_dir}")")
 
     # glfw3
     clflags=("${clflags[@]}" -MD)
     link_flags=("${link_flags[@]}" gdi32.lib user32.lib glfw3.lib)
+    ldflags=(${ldflags[@]} -lgdi32 -luser32 -lglfw3 -lshell32)
 
     # audio using WASAPI
     link_flags=("${link_flags[@]}" ole32.lib)
-    compile_vstudio "12.0" "${vstudio_arch}"
+    ldflags=(${ldflags[@]} -lole32)
+    if false; then
+	compile_vstudio "12.0" "${vstudio_arch}"
+    else
+	ldflags=(${ldflags[@]} "-Xlinker" "/NODEFAULTLIB:LIBCMT")
+	compile_clang
+    fi
 }
 
 function compile_MINGW32_NT {
