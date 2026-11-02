@@ -11,7 +11,7 @@ HOSTNAME="$(hostname)"
 OS_NAME="$(uname -s)"
 OS_RELEASE="$(uname -r)"
 CPU_NAME="$(uname -m)"
-OS="${OS_NAME// /_}"
+OS="$(echo "${OS_NAME// /_}" | cut -d '-' -f 1)"
 
 src_dirs=()
 while [ "$#" -gt 0 ]; do
