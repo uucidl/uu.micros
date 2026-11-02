@@ -342,7 +342,7 @@ function compile_vstudio() {
 }
 
 function compile_NT() {
-    local vstudio_arch=x86
+    local vstudio_arch=${1:-x86}
     local native_libs_dir=${HERE}/libs/NT_${vstudio_arch}
     
     src_files=("${src_files[@]}" "${HERE}"/runtime/runtime.cpp)
@@ -361,14 +361,12 @@ function compile_NT() {
     compile_vstudio "12.0" "${vstudio_arch}"
 }
 
-# windows 7 on msys with vstudio express 2013
-function compile_MINGW32_NT-6.1() {
-    compile_NT
+function compile_MINGW32_NT {
+    compile_NT "x86"
 }
 
-# windows 8 on msys with vstudio express 2013
-function compile_MINGW32_NT-6.2() {
-    compile_NT
+function compile_MINGW64_NT() {
+    compile_NT "x64"
 }
 
 # generic
