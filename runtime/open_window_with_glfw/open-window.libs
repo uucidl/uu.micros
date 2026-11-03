@@ -1,0 +1,9 @@
+LIB "glfw3"
+
+#if defined(_WIN32)
+LIB "user32"
+LIB "gdi32"
+LIB "shell32"
+
+RAWLINKERFLAG -Xlinker /NODEFAULTLIB:libcmt
+#endif

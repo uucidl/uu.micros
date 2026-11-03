@@ -1,0 +1,24 @@
+#if defined(_WIN32)
+LIB "opengl32"
+LIB "ole32"
+#endif
+
+#include "micros/preprocessor.h"
+
+#if defined(_WIN32)
+#define OS NT
+#elif defined(__APPLE__) && defined(__MACH__)
+#define OS Darwin
+#endif
+
+
+#if (defined(_MSC_VER) && defined(_M_X64)) || (defined(__gcc__) && defined(__x86_64__))
+#define CPU x64
+#elif (defined(_MSC_VER) && defined(_M_IX86)) || (defined(_gcc__) && defined(__i386__))
+#define CPU x86
+#endif
+
+#define OS_CPU CONCAT(CONCAT(OS,_), CPU)
+
+LIBDIR PATH(libs/,OS_CPU)
+
