@@ -39,7 +39,7 @@ while [ "$#" -gt 0 ]; do
         --help|-h)
             printf -- "Usage: %s [-v] [--build-dir <dir>] [--output-dir <dir>]* [<build-style>\n" "${0}"
             printf -- "\t\t-v: verbose operation\n"
-            printf -- "\t\t--src-dir: where your main cpp files are located\n"
+            printf -- "\t\t--src-dir: where your main cc files are located\n"
             printf -- "\t\t--output-dir: where to put build products\n"
             exit 1
             shift
@@ -75,7 +75,7 @@ shopt -s nullglob
 printf 'INFO source dirs: %s\n' "${src_dirs[@]}"
 for dir in "${src_dirs[@]}"; do
     no_file=1
-    for src_file in "${dir}"/*.cpp; do
+    for src_file in "${dir}"/*.cc; do
         src_files=("${src_files[@]}" "${src_file}")
         no_file=""
     done
@@ -96,7 +96,7 @@ container_dirs=("${HERE}"/libs)
 include_dirs=()
 for container in "${container_dirs[@]}"; do
     for lib in "${container}"/*; do
-        for file in "${lib}"/src/*.cpp; do
+        for file in "${lib}"/src/*.cc; do
             src_files=("${src_files[@]}" "${file}")
         done
         for file in "${lib}"/src/*.c; do
@@ -125,7 +125,7 @@ function rebuild_dir() {
 
 function code_format() {
     local all_dirs=("${src_dirs[@]}" "${HERE}/include" "${HERE}/runtime")
-    local exts=(".cpp" ".hpp" ".c" ".h" ".fs" ".vs" ".glsl")
+    local exts=(".cc" ".hpp" ".c" ".h" ".fs" ".vs" ".glsl")
     local globbed
     local find_names=(-false)
     for ext in "${exts[@]}"; do
@@ -216,7 +216,7 @@ function compile_clang() {
 }
 
 function compile_Darwin() {
-    src_files=("${src_files[@]}" "${HERE}"/runtime/runtime.cpp)
+    src_files=("${src_files[@]}" "${HERE}"/runtime/runtime.cc)
 
     cflags=("${cflags[@]}" "-Wno-deprecated-declarations")
 
@@ -346,7 +346,7 @@ function compile_NT() {
     local vstudio_arch=${1:-x86}
     local native_libs_dir=${HERE}/libs/NT_${vstudio_arch}
     
-    src_files=("${src_files[@]}" "${HERE}"/runtime/runtime.cpp)
+    src_files=("${src_files[@]}" "${HERE}"/runtime/runtime.cc)
 
     clflags=("${clflags[@]}" -DGLEW_STATIC)
     cflags=("${cflags[@]}" -DGLEW_STATIC)

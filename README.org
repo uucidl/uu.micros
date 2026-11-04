@@ -32,10 +32,10 @@ You have two options
 
 ** Forking uu.micros
 
-Fork uu.micros; then compose your demo in any number of .cpp files
+Fork uu.micros; then compose your demo in any number of .cc files
 under [[./src/]]
 
-Use [[./src/main.cpp/]] as an inspiration
+Use [[./src/main.cc/]] as an inspiration
 
 ** Using uu.micros as a submodule
 
@@ -49,7 +49,7 @@ $ mkdir modules
 $ git submodule add --name uu.micros https://github.com/uucidl/uu.micros.git modules/uu.micros
 #+END_SRC
 
-Then put your .cpp files wherever you want (for example ./src/) and run:
+Then put your .cc files wherever you want (for example ./src/) and run:
 
 #+BEGIN_SRC sh
 modules/uu.micros/build --src-dir ./src --output-dir ./builds
@@ -152,7 +152,7 @@ All the rest is shipped within the tree
 
 Put your os specific code under a subdirectory of runtime like so
 
-=runtime/Darwin/display.cpp=
+=runtime/Darwin/display.cc=
 
 Then hook it up inside the platform specific compile function.
 
