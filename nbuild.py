@@ -62,9 +62,6 @@ BUILD: Dict[str, str] = {
 
 # Add per-file overrides for third-party source files (populate git patterns in `.3ps`).
 BUILD_OVERRIDE: Dict[str, str] = {}
-# populate_build_overrides() restarts from this snapshot on every run: what
-# is written above stays, what it derives never outlives its .3ps match.
-HAND_BUILD_OVERRIDE = dict(BUILD_OVERRIDE)
 
 LINK_COMMAND = f"{LINK} -O3 -W"
 
@@ -79,6 +76,14 @@ INCLUDEDIRS_FILE = Path(".includedirs")
 BIN_OS_SUFFIX = {
     'Windows': '.exe',
 }
+
+# populate_build_overrides() restarts from this snapshot on every run: what
+# is written above stays, what it derives never outlives its .3ps match.
+HAND_BUILD_OVERRIDE = dict(BUILD_OVERRIDE)
+
+# One build edge as produced by plan_builds: (source path, extension,
+# build command, output path, is a program object, ninja description).
+Edge = Tuple[str, str, str, Path, bool, str]
 
 def read_line_list(path: Path) -> List[str]:
     """One entry per line; tolerates CRLF and a missing final newline"""
@@ -149,9 +154,10 @@ def build_command_for(file_str: str, ext: str) -> str:
         raise SystemExit(f"no build command for .{ext} file {file_str}")
     return cmd
 
-def plan_builds(all_files: Set[str], third_party_files: Set[str], bin_files: Set[str]) -> List[Tuple[str, str, str, Path, bool, str]]:
+def plan_builds(all_files: Set[str], third_party_files: Set[str], bin_files: Set[str]) -> List[Edge]:
     """One compile edge per source file, sorted by path, shared by the
-    compile and link manifests so both agree on output paths.
+    compile and link manifests and the .liblist gather, so all agree on
+    output paths.
 
     Returns (file_str, ext, build_command, out_path, is_bin, label). A .libs
     file preprocesses to a *.liblist; everything else compiles to a *.o.
@@ -173,7 +179,17 @@ def plan_builds(all_files: Set[str], third_party_files: Set[str], bin_files: Set
         edges.append((file_str, ext, build_command_for(file_str, ext), out_path, is_bin, label))
     return edges
 
-def write_compile_manifest(ninja_path: Path, edges: List[Tuple[str, str, str, Path, bool, str]]) -> None:
+def partition_edges(edges: List[Edge]) -> Tuple[List[Edge], List[Edge]]:
+    """Split the sorted edge list in one pass: (.libs edges, object
+    edges). Both halves keep order; ext == "libs" is decided here and
+    nowhere else."""
+    libs: List[Edge] = []
+    objs: List[Edge] = []
+    for edge in edges:
+        (libs if edge[1] == "libs" else objs).append(edge)
+    return libs, objs
+
+def write_compile_manifest(ninja_path: Path, edges: List[Edge]) -> None:
     OBJ_LIB_DIR.mkdir(parents=True, exist_ok=True)
     OBJ_BIN_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -214,34 +230,42 @@ def write_compile_manifest(ninja_path: Path, edges: List[Tuple[str, str, str, Pa
     with open(ninja_path, "w", encoding="utf-8", newline="") as f:
         f.write(NL.join(manifest_lines) + NL)
 
-def gather_lib_flags() -> List[str]:
+def gather_lib_flags(lib_edges: List[Edge]) -> List[str]:
     """Gather the link flags emitted by the .libs preprocessing
-    (build.sh 49754a3): $OBJDIR/bin/*.libs.liblist first, then
-    $OBJDIR/lib/*.libs.liblist, each in glob (sorted) order; the flag order
-    is link order. Each line starts with a keyword (LIBDIR, LIB or
+    (build.sh 49754a3): every *.liblist output, in file order -- the
+    sorted source list plan_builds built -- and line order kept within
+    each file. Link flag order is significant (the first -L directory
+    holding a given library name wins, stateful raw linker flags act
+    positionally, duplicate static-library symbols resolve by
+    position), so this is one deterministic list, not a filesystem
+    glob. Each line starts with a keyword (LIBDIR, LIB or
     RAWLINKERFLAG); blank lines, preprocessor line markers (# ...) and
     unknown keywords are ignored, like the shell case fall-through.
     A value containing whitespace is one flag here and splits into several
     words on the link command line"""
     flags = []
-    for directory in (OBJ_BIN_DIR, OBJ_LIB_DIR):
-        for libfile in sorted(directory.glob("*.libs.liblist")):
-            for line in libfile.read_text(encoding="utf-8", errors="replace").splitlines():
-                tokens = line.split()
-                if not tokens:
-                    continue
-                kind, values = tokens[0], tokens[1:]
-                if kind == "LIBDIR":
-                    flags.append("-L" + " ".join(values))
-                elif kind == "LIB":
-                    flags.append("-l" + " ".join(values))
-                elif kind == "RAWLINKERFLAG":
-                    # the value is word-split into separate link arguments.
-                    flags.extend(values)
+    for file_str, ext, build_command, out_path, is_bin, label in lib_edges:
+        if not out_path.is_file():
+            # A targeted or dry (-n) run may not have built every .liblist;
+            # the shell glob only ever saw the files that existed too.
+            print(f"warning: {out_path} missing, its lib flags are skipped", file=sys.stderr)
+            continue
+        for line in out_path.read_text(encoding="utf-8", errors="replace").splitlines():
+            tokens = line.split()
+            if not tokens:
+                continue
+            kind, values = tokens[0], tokens[1:]
+            if kind == "LIBDIR":
+                flags.append("-L" + " ".join(values))
+            elif kind == "LIB":
+                flags.append("-l" + " ".join(values))
+            elif kind == "RAWLINKERFLAG":
+                # the value is word-split into separate link arguments.
+                flags.extend(values)
     print(f"LIBFLAGS: {flags}")
     return flags
 
-def write_link_manifest(ninja_path: Path, edges: List[Tuple[str, str, str, Path, bool, str]], lib_flags: List[str]) -> None:
+def write_link_manifest(ninja_path: Path, obj_edges: List[Edge], lib_flags: List[str]) -> None:
     BIN_DIR.mkdir(parents=True, exist_ok=True)
 
     lib_flags_str = " ".join([ninja_escape_dollars(flag) for flag in lib_flags])
@@ -255,9 +279,7 @@ def write_link_manifest(ninja_path: Path, edges: List[Tuple[str, str, str, Path,
 
     lib_objects = []
     bin_targets = []
-    for file_str, ext, build_command, out_path, is_bin, label in edges:
-        if ext == "libs":
-            continue  # *.liblist outputs carry link flags, not code
+    for file_str, ext, build_command, out_path, is_bin, label in obj_edges:
         if is_bin:
             bin_out = (BIN_DIR / Path(file_str).stem).with_suffix(BIN_OS_SUFFIX.get(platform.system(), ""))
             bin_targets.append((escape_ninja_path(bin_out.as_posix()), escape_ninja_path(out_path.as_posix())))
@@ -307,6 +329,7 @@ def compile_then_link(ninja_args: List[str]) -> int:
     populate_build_overrides(third_party_files)
     clean_outputs()
     edges = plan_builds(all_files, third_party_files, bin_files)
+    lib_edges, obj_edges = partition_edges(edges)
     write_compile_manifest(NINJA_COMPILE_PATH, edges)
 
     rc = run_ninja(NINJA_COMPILE_PATH, ninja_args)
@@ -314,8 +337,8 @@ def compile_then_link(ninja_args: List[str]) -> int:
         print(f"{COLOR_FAIL}[!] Build failed.{COLOR_RESET}")
         return rc
 
-    lib_flags = gather_lib_flags()
-    write_link_manifest(NINJA_LINK_PATH, edges, lib_flags)
+    lib_flags = gather_lib_flags(lib_edges)
+    write_link_manifest(NINJA_LINK_PATH, obj_edges, lib_flags)
     rc = run_ninja(NINJA_LINK_PATH, ninja_args)
     if rc != 0:
         print(f"{COLOR_FAIL}[!] Build failed.{COLOR_RESET}")
@@ -331,6 +354,7 @@ def execute_watch_mode(target_binary: str) -> None:
         # Rebuild the .3ps-derived overrides on every pass.
         populate_build_overrides(third_party_files)
         edges = plan_builds(all_files, third_party_files, bin_files)
+        lib_edges, obj_edges = partition_edges(edges)
         write_compile_manifest(NINJA_COMPILE_PATH, edges)
         first_party_files = [f for f in all_files if f not in third_party_files]
         initial_mtimes = get_file_mtimes(first_party_files)
@@ -339,8 +363,8 @@ def execute_watch_mode(target_binary: str) -> None:
         if run_ninja(NINJA_COMPILE_PATH, []) != 0:
             failed = True
         else:
-            lib_flags = gather_lib_flags()
-            write_link_manifest(NINJA_LINK_PATH, edges, lib_flags)
+            lib_flags = gather_lib_flags(lib_edges)
+            write_link_manifest(NINJA_LINK_PATH, obj_edges, lib_flags)
             if run_ninja(NINJA_LINK_PATH, []) != 0:
                 failed = True
 

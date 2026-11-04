@@ -64,7 +64,7 @@ export PATH
 ASTYLE=astyle
 GIT=git
 
-BUILD_DIR=${build_dir:-"${HERE}"/builds}/${HOSTNAME}
+BUILD_DIR=${build_dir:-"${HERE}"/build}/${HOSTNAME}
 OBJ_DIR="${BUILD_DIR}"/obj
 
 ## IMPLEMENTATION
