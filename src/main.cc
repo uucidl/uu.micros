@@ -74,7 +74,7 @@ extern void render_next_gl3(uint64_t time_micros,
                 static_cast<float>(0.49 * cos(phase)),
         };
         float const argb[4] = {
-                0.0f, 0.31f + 0.39f * sincos[0], 0.27f + 0.39f * sincos[1], 0.89f
+                1.0f, 0.31f + 0.39f * sincos[0], 0.27f + 0.39f * sincos[1], 0.89f
         };
         glClearColor (argb[1], argb[2], argb[3], argb[0]);
         glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
