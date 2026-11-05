@@ -54,9 +54,16 @@ void open_window(char const * title, bool const prefers_fullscreen)
 
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, glMajorVersion);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, glMinorVersion);
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+	if (false) {
+	  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	} else {
+	  // To use immediate mode gl2
+	  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_FALSE);
+	  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+	}
+	
         glfwWindowHint(GLFW_SAMPLES, 4);
         GLFWwindow* window = glfwCreateWindow
                              (window_wh[0], window_wh[1], title,
