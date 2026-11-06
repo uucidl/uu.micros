@@ -44,7 +44,7 @@ static struct {
 	nullptr,
 };
 
-void runtime_init ()
+void runtime_init (Init_Parameters params)
 {
         clock_init(&runtime_globals.clock, &runtime_globals.std_allocator);
         open_stereo48khz_stream(runtime_globals.clock);

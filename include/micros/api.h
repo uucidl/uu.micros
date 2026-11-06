@@ -2,8 +2,12 @@
 
 #include <cstdint>
 
+struct Init_Parameters {
+  bool need_gl2_compat = false;
+};
+
 /// initialize runtime (and start the demo)
-extern void runtime_init();
+extern void runtime_init(Init_Parameters params = {});
 
 /// current time in microseconds
 extern uint64_t now_micros();
