@@ -3,7 +3,9 @@
 #include <cstdint>
 
 struct Init_Parameters {
+  char const * title = "main";
   bool need_gl2_compat = false;
+  bool prefers_fullscreen = false;
 };
 
 /// initialize runtime (and start the demo)
