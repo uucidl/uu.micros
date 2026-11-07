@@ -230,6 +230,14 @@ function compile_Darwin() {
     compile_clang
 }
 
+function compile_Linux() {
+    src_files+=("${HERE}"/runtime/runtime.cc)
+    src_files+=("${HERE}"/runtime/clock.cc)
+    src_files+=("${HERE}"/runtime/play-audio.cc)
+    ldflags+=("-lpipewire-0.3" "-lOpenGL" "-lGLX" "-lglfw")
+    compile_clang
+}
+
 function reg_query() {
     path=$1
     value_name=$2
