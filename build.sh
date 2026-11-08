@@ -394,6 +394,10 @@ function compile_MINGW64_NT() {
     compile_NT "x64"
 }
 
+function compile_MSYS_NT() {
+    compile_NT "x64"
+}
+
 # generic
 
 function compile() {
