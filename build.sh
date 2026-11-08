@@ -13,6 +13,8 @@ OS_RELEASE="$(uname -r)"
 CPU_NAME="$(uname -m)"
 OS="$(echo "${OS_NAME// /_}" | cut -d '-' -f 1)"
 
+OS_EXE_EXT=""
+
 src_dirs=()
 while [ "$#" -gt 0 ]; do
     case $1 in
@@ -206,7 +208,7 @@ function compile_gxxlike() {
         fi
     done
 
-    "${CXX}" -std=c++17 "${cflags[@]}" "${cxxflags[@]}" "${ldflags[@]}" "${OBJ_DIR}"/*.o -o "${BUILD_DIR}/main"
+    "${CXX}" -std=c++17 "${cflags[@]}" "${cxxflags[@]}" "${ldflags[@]}" "${OBJ_DIR}"/*.o -o "${BUILD_DIR}/main${OS_EXE_EXT}"
 }
 
 function compile_clang() {
@@ -351,6 +353,8 @@ function compile_vstudio() {
 }
 
 function compile_NT() {
+    OS_EXE_EXT=".exe"
+    
     local vstudio_arch=${1:-x86}
     local native_libs_dir=${HERE}/libs/NT_${vstudio_arch}
     
