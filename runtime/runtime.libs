@@ -1,6 +1,12 @@
 #if defined(_WIN32)
 LIB "opengl32"
 LIB "ole32"
+#else
+LIB "OpenGL"
+#if defined(__linux__)
+LIB "GLX"
+LIB "pipewire-0.3"
+#endif
 #endif
 
 #include "micros/preprocessor.h"
