@@ -1,3 +1,7 @@
+#ifndef DIRNAME
+#error expect DIRNAME macro storing the path to the current file
+#endif
+
 #if defined(_WIN32)
 LIB "opengl32"
 LIB "ole32"
@@ -28,5 +32,5 @@ LIB "pipewire-0.3"
 
 #define OS_CPU CONCAT(CONCAT(OS,_), CPU)
 
-LIBDIR PATH(../libs/,OS_CPU)
+LIBDIR STRING(PATH(DIRNAME,PATH(/../libs/,OS_CPU)))
 
