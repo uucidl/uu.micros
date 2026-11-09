@@ -88,7 +88,7 @@ extern void render_next_gl3(uint64_t time_micros,
           
           glPushMatrix();
           glTranslatef(origin.x, origin.y, 0.0f);
-          glRotatef((3.0 * phase * 360.f / 6.30f) + 360.0f * i / n, 0.0f, 0.0f, 1.0f);
+          glRotatef((3.0 * phase * 360.f / 6.30f) + 360.0f * i / n, 0.0f, 0.4f, 0.6f);
           glColor3f(1.f - argb[1], 1.0f - argb[2], 1.0f - argb[1]);
           glBegin(GL_QUADS);
 
