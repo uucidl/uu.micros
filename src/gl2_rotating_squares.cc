@@ -10,45 +10,13 @@ static struct {
   bool shown_video_frame;
 } globals;
 
-extern void render_next_2chn_48khz_audio(uint64_t time_micros,
+extern void render_next_2chn_48khz_audio(uint64_t /*time_micros*/,
                 int const sample_count, double left[/*sample_count*/],
                 double right[/*sample_count*/])
 {
-  if (!globals.shown_video_frame) {
-    for (int i = 0, n = sample_count; i < n; i++) {
-      left[i] = right[i] = 0.0;
-    }
-  } else {
-          static double sc_phase = 0.0;
-        static double l_phase = 0.0;
-        static double r_phase = 0.0;
-        double pert = cos(6.30 * time_micros / 1e6 / 11.0) + sin(
-                              6.30 * time_micros / 1e6 / 37.0);
-        double const drone_hz = 110.0 + 20.0 * pert*pert;
-
-        for (int i = 0; i < sample_count; i++) {
-                double sincos[2] = {
-                        0.49 * sin(sc_phase) * pert,
-                        0.49 * cos(sc_phase) * pert
-                };
-
-                left[i] = 0.5 * (sin(l_phase) +
-                                 0.25 * (sin(2.0 * l_phase) +
-                                         0.25 * pert * sin(4.0 * r_phase)));
-                right[i] = 0.5 * (sin(r_phase) +
-                                  0.25 * (sin(2.0 * r_phase) +
-                                          0.25 * pert * sin(4.0 * l_phase)));
-
-                double rm = left[i] * right[i];
-
-                left[i] += 0.35 * pert * pert * rm;
-                right[i] += 0.35 * pert * pert * rm;
-
-                l_phase += (1.0f + 0.12f * sincos[0]) * drone_hz * 6.30 / 48000.0;
-                r_phase += (1.0f + 0.12f * sincos[1]) * drone_hz * 6.30 / 48000.0;
-                sc_phase += 6.30 / 48000.0 / 7.0;
+        for (int i = 0, n = sample_count; i < n; i++) {
+          left[i] = right[i] = 0.0;
         }
-  }
 }
 
 struct Vec2 {
@@ -73,24 +41,8 @@ static void assertNoError() {
 }
 
 extern void render_next_gl3(uint64_t time_micros,
-                            struct Display)
+                            struct Display display)
 {
-        // note: it is safe to put opengl initialization code in local
-        // static variables because the c++ standard says that static
-        // initialization happens the first time control goes through
-        // this block of code i.e. the first time the render function
-        // gets called.
-        //
-        // don't put these in static top-level variables however.
-        static class DoOnce
-        {
-        public:
-                DoOnce()
-                {
-                        printf("OpenGL version %s\n", glGetString(GL_VERSION));
-                }
-        } init;
-
         double const phase = 6.30 * time_micros / 1e6 / 11.0;
         float sincos[2] = {
                 static_cast<float>(0.49 * sin(phase)),
@@ -101,27 +53,46 @@ extern void render_next_gl3(uint64_t time_micros,
         };
         glClearColor (argb[1], argb[2], argb[3], argb[0]);
         glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glViewport (0, 0, display.framebuffer_width_px, display.framebuffer_height_px);
+        
+        enum { NUM_ELEMS = 1024 };
+        int num_cols = 32;
+        int num_rows = NUM_ELEMS / num_cols;
 
-        glMatrixMode(GL_MODELVIEW);
-        for (int i = 0, n = 1024; i < n; i++) {
-          float num_cols = 32.0f;
-          float num_rows = float(n) / num_cols;
+        float square_size = sqrtf(2.0f) / 4.0f * std::min(2.0f / num_cols, 2.0f / num_rows);
+
+        {
+          glMatrixMode(GL_PROJECTION);
+          glLoadIdentity();
+          float aspect = float(display.framebuffer_height_px)/float(display.framebuffer_width_px);
           
-          Vec2 origin = { fmodf(i, num_cols) / num_cols, roundf(i / num_cols) / num_rows};
+          glOrtho(-1.0f, 1.0f, aspect * -1.0f, aspect * 1.0f, -1.0f, 1.0f);
+          assertNoError();
+        }
+        
+        glMatrixMode(GL_MODELVIEW);
+        for (int i = 0, n = NUM_ELEMS; i < n; i++) {
+          
+          int row = i / num_cols;
+          int col = i % num_cols;
+          float grid_width = 2.0f / num_cols;
+          float grid_height = 2.0f / num_rows;
+
+          Vec2 origin = { fmodf(i, float(num_cols)) / num_cols, float(row) / num_rows};
           {
             origin.x *= 2.0f;
             origin.y *= 2.0f;
-            origin.x += -1.0f;
-            origin.y += -1.0f;
+            origin.x += -1.0f + grid_width / 2.0f;
+            origin.y += -1.0f + grid_height / 2.0f;
           }
           
           glPushMatrix();
           glTranslatef(origin.x, origin.y, 0.0f);
-          glRotatef((phase * 360.f / 6.30f) + 360.0f * i / n, 0.0f, 0.0f, 1.0f);
-          glColor3f(1.0f, 1.0f, 1.0f);
+          glRotatef((3.0 * phase * 360.f / 6.30f) + 360.0f * i / n, 0.0f, 0.0f, 1.0f);
+          glColor3f(1.f - argb[1], 1.0f - argb[2], 1.0f - argb[1]);
           glBegin(GL_QUADS);
 
-          traceNaturalSquare({}, sqrtf(2.0f) / 4.0f * std::min(2.0f / num_cols, 2.0f / num_rows));
+          traceNaturalSquare({}, square_size);
           glEnd();
           glPopMatrix();
           
