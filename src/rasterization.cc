@@ -53,6 +53,7 @@ static thread_local uint64_t talk_last;
 #pragma endregion(Talk)
 
 
+#pragma region(GL_Utils)
 static char const *
 desc_gl_enum(GLenum x) {
 #define CD_(x) case x: return #x
@@ -81,6 +82,7 @@ check_errors() {
 }
 
 #define assertNoError_() assert(check_errors())
+#pragma endregion(GL_Utils)
 
 
 static f1
