@@ -4,6 +4,7 @@
 #include "micros/gl3.h"
 
 #include <assert.h>
+#include <math.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
@@ -12,6 +13,7 @@
 using i2 = int32_t __attribute__((ext_vector_type(2)));
 using f2 = float __attribute__((ext_vector_type(2)));
 using f1 = float;
+using d1 = double;
 
 static char const *
 desc_gl_enum(GLenum x) {
@@ -58,21 +60,31 @@ set_orthographic_projection(Display display) {
   assertNoError_();
 }
 
+// goes from 0 to 1 and back to 0 in duration \p period as \p t progresses.
+static d1
+unipolar_cycle(d1 t, d1 period) {
+  constexpr d1 twopi = 2.0 * 3.141592;
+  d1 ut = fmod(t, period);
+  return 0.5 * (1.0 + cos(twopi * ut / period));
+}
+
 extern void
 render_next_gl3(uint64_t time_micros,
                 struct Display display)
 {
   f2 center = { 0.f, 0.f};
-  f1 radius = 0.5f;
+  f1 radius = 0.5f + 0.5f * unipolar_cycle(time_micros, 1e6 * 10.0);
 
   set_orthographic_projection(display);
   
   glColor3f(1.0f, 0.5f, 1.0f);
   assertNoError_();
 
-  // simplistic model made of this many points:
-  i2 size_pt = (i2){256, 256};
+  // circle, no antialias (i.e. border is determined by binary in vs out)
   
+  i2 size_pt = (i2){64, 64};
+
+  glPointSize(display.framebuffer_width_px / size_pt.x);
   glBegin(GL_POINTS);
   for (int row_i = 0, row_n = size_pt.y; row_i < row_n; row_i++) {
     for (int col_i = 0, col_n = size_pt.x; col_i < col_n; col_i++) {
@@ -95,7 +107,7 @@ render_next_gl3(uint64_t time_micros,
 }
 
 extern void
-render_next_2chn_48khz_audio(uint64_t time_micros,
+render_next_2chn_48khz_audio(uint64_t /*time_micros*/,
                              int const sample_count, double left[/*sample_count*/],
                              double right[/*sample_count*/]) {
   memset(left, 0, sample_count * sizeof left[0]);
